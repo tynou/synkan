@@ -1,0 +1,22 @@
+﻿services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: slate-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    ports:
+      - "5433:5432"
+    networks:
+      - slate
+
+volumes:
+  postgres_data:
+
+networks:
+  slate:
+    driver: bridge
