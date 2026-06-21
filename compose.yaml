@@ -13,6 +13,17 @@
       - "5433:5432"
     networks:
       - slate
+  
+  redis:
+    image: redis:8-alpine
+    container_name: slate-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - slate
 
 volumes:
   postgres_data:
