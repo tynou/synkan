@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Slate.Infrastructure.Persistence;
+
 namespace Slate.API;
 
 public static class Program
@@ -16,12 +19,23 @@ public static class Program
     
     private static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
-        
+        services.AddPostgres(configuration);
+    }
+    
+    private static void AddPostgres(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Postgres");
+        services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
     }
 
     private static void ConfigureApp(this WebApplication app)
     {
+        app.UseAuthentication();
+        app.UseAuthorization();
         
+        app.MapControllers();
+        
+        app.UseSwagger();
+        app.UseSwaggerUI();
     }
-    
 }
