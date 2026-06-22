@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Slate.Application.Dto.Request;
 using Slate.Application.Dto.Response;
@@ -10,7 +9,7 @@ namespace Slate.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class BoardController(IBoardService boardService) : ControllerBase
+public class BoardController(IBoardService boardService, ICurrentUserService currentUser) : ControllerBase
 {
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<BoardDto>> Get(Guid id)
@@ -24,14 +23,7 @@ public class BoardController(IBoardService boardService) : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateBoardRequest request)
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        
-        if (!Guid.TryParse(userIdClaim, out var userId))
-        {
-            return Unauthorized("User ID not found in token Claims");
-        }
-        
-        var result = await boardService.Create(userId, request.Title);
+        var result = await boardService.Create(currentUser.UserId, request.Title);
         
         return CreatedAtAction(nameof(Get), new { id = result }, result);
     }
