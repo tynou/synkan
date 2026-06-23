@@ -10,7 +10,7 @@ public class JwtOptions
     public string Key { get; set; } = "";
 
     [Range(1, int.MaxValue)]
-    public int ExpiresInMinutes { get; set; } = 60;
+    public int ExpiryMinutes { get; set; } = 60;
 
     [Required(AllowEmptyStrings = false)]
     public string Issuer { get; set; } = "";
