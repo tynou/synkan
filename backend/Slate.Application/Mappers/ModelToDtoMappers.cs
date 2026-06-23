@@ -17,6 +17,20 @@ public static class ModelToDtoMappers
 
     public static ColumnDto ToDto(this Column column)
     {
-        return new ColumnDto();
+        return new ColumnDto(
+            column.Id,
+            column.BoardId,
+            column.Cards.Select(c => c.ToDto())
+        );
+    }
+
+    public static CardDto ToDto(this Card card)
+    {
+        return new CardDto(
+            card.Id,
+            card.ColumnId,
+            card.Title,
+            card.Description
+        );
     }
 }
