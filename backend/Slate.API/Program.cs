@@ -5,7 +5,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Slate.Application.Common;
+using Slate.Application.Interfaces;
+using Slate.Application.Services;
+using Slate.Domain.Repositories;
 using Slate.Infrastructure.Persistence;
+using Slate.Infrastructure.Persistence.Repositories;
 
 namespace Slate.API;
 
@@ -17,6 +21,14 @@ public static class Program
         builder.Services.ConfigureServices(builder.Configuration);
 
         var app = builder.Build();
+        
+        // TODO: switch to migrations
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.EnsureDeletedAsync();
+            await dbContext.Database.EnsureCreatedAsync();
+        }
 
         app.ConfigureApp();
 
@@ -26,12 +38,30 @@ public static class Program
     private static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddControllers();
-        
+        services.AddServices();
+        services.AddRepositories();
         services.AddPostgres(configuration);
         services.AddAuth();
-        services.AddSwagger();
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
+        services.AddSwagger();
+        
+        services.AddRouting(options => options.LowercaseUrls = true);
+    }
+
+    private static void AddServices(this IServiceCollection services)
+    {
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IBoardService, BoardService>();
+    }
+
+    private static void AddRepositories(this IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IBoardRepository, BoardRepository>();
     }
     
     private static void AddSwagger(this IServiceCollection services)
