@@ -6,5 +6,5 @@ public interface IBoardRepository
 {
     Task Create(Board board);
 
-    Task<Board?> GetById(Guid id);
+    Task<Board?> GetById(Guid boardId);
 }

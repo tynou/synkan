@@ -12,10 +12,12 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
         await context.SaveChangesAsync();
     }
 
-    public async Task<Board?> GetById(Guid id)
+    public async Task<Board?> GetById(Guid boardId)
     {
         return await context.Boards
             .AsNoTracking()
-            .FirstOrDefaultAsync(b => b.Id == id);
+            .Include(b => b.Columns)
+                .ThenInclude(c => c.Cards)
+            .FirstOrDefaultAsync(b => b.Id == boardId);
     }
 }

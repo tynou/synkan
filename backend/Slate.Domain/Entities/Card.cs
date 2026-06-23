@@ -7,6 +7,8 @@ public class Card
     public string Title { get; private set; }
     public string Description { get; private set; }
     
+    public Column Column { get; private set; }
+    
     public Card(Guid id, Guid columnId, string title)
     {
         Id = id;
