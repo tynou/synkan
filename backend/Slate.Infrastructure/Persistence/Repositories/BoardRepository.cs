@@ -14,6 +14,8 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
 
     public async Task<Board?> GetById(Guid id)
     {
-        return await context.Boards.Where(b => b.Id == id).FirstOrDefaultAsync();
+        return await context.Boards
+            .AsNoTracking()
+            .FirstOrDefaultAsync(b => b.Id == id);
     }
 }

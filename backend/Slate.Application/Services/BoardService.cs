@@ -1,4 +1,6 @@
-﻿using Slate.Application.Interfaces;
+﻿using Slate.Application.Dto.Response;
+using Slate.Application.Interfaces;
+using Slate.Application.Mappers;
 using Slate.Domain.Entities;
 using Slate.Domain.Repositories;
 
@@ -13,8 +15,11 @@ public class BoardService(IBoardRepository boardRepository) : IBoardService
         return board.Id;
     }
 
-    public async Task<Board?> GetById(Guid id)
+    public async Task<BoardDto?> GetById(Guid id)
     {
-        return await boardRepository.GetById(id);
+        var board = await boardRepository.GetById(id);
+        if (board is null)
+            throw new Exception("Board not found."); // TODO: make a custom exception
+        return board.ToDto();
     }
 }
