@@ -9,6 +9,8 @@ public class Card
     
     public Column Column { get; private set; }
     
+    private Card() { }
+    
     public Card(Guid id, Guid columnId, string title)
     {
         Id = id;

@@ -10,6 +10,8 @@ public class Column
     private readonly List<Card> _cards = [];
     public IReadOnlyCollection<Card> Cards => _cards;
 
+    private Column() { }
+    
     public Column(Guid id, Guid boardId)
     {
         Id = id;

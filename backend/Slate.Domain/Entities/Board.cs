@@ -6,13 +6,26 @@ public class Board
     public Guid OwnerId { get; private set; }
     public string Title { get; private set; }
 
+    private readonly List<User> _members = [];
+    public IReadOnlyCollection<User> Members => _members.AsReadOnly();
+
     private readonly List<Column> _columns = [];
-    public IReadOnlyCollection<Column> Columns => _columns;
+    public IReadOnlyCollection<Column> Columns => _columns.AsReadOnly();
     
-    public  Board(Guid id, Guid ownerId, string title)
+    private Board() { }
+    
+    public Board(User owner, string title)
     {
-        Id = id;
-        OwnerId = ownerId;
+        Id = Guid.NewGuid();
+        OwnerId = owner.Id;
         Title = title;
+        
+        AddMember(owner);
+    }
+    
+    public void AddMember(User user)
+    { 
+        if (_members.All(m => m.Id != user.Id))
+            _members.Add(user);
     }
 }
