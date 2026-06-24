@@ -9,7 +9,7 @@ namespace Slate.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class BoardController(IBoardService boardService, ICurrentUserService currentUser) : ControllerBase
+public class BoardsController(IBoardService boardService, ICurrentUserService currentUser) : ControllerBase
 {
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<BoardDto>> Get(Guid id)
@@ -32,5 +32,19 @@ public class BoardController(IBoardService boardService, ICurrentUserService cur
     public async Task<ActionResult> Edit(Guid id)
     {
         return NoContent();
+    }
+    
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        await boardService.Delete(currentUser.UserId, id);
+        return NoContent();
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<BoardDto>>> GetMyBoards()
+    {
+        var result = await boardService.GetBoardsByUserId(currentUser.UserId);
+        return Ok(result);
     }
 }
