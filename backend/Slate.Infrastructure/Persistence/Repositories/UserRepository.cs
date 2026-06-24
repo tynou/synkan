@@ -15,14 +15,12 @@ public class UserRepository(AppDbContext context) : IUserRepository
     public async Task<User?> GetByUsernameAsync(string username)
     {
         return await context.Users
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Username == username);
     }
 
     public async Task<User?> GetByIdAsync(Guid id)
     {
         return await context.Users
-            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 }
