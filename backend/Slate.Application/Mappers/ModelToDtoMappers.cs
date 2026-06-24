@@ -11,6 +11,7 @@ public static class ModelToDtoMappers
             board.Id,
             board.OwnerId,
             board.Title,
+            board.Members.Select(u => u.ToDto()),
             board.Columns.Select(c => c.ToDto())
         );
     }
@@ -31,6 +32,14 @@ public static class ModelToDtoMappers
             card.ColumnId,
             card.Title,
             card.Description
+        );
+    }
+
+    public static UserDto ToDto(this User user)
+    {
+        return new UserDto(
+            user.Id,
+            user.Username
         );
     }
 }
