@@ -16,6 +16,7 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
     {
         return await context.Boards
             .AsNoTracking()
+            .Include(b => b.Members)
             .Include(b => b.Columns)
                 .ThenInclude(c => c.Cards)
             .FirstOrDefaultAsync(b => b.Id == boardId);

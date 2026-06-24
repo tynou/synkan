@@ -13,5 +13,9 @@ public class BoardConfiguration : IEntityTypeConfiguration<Board>
         builder.Property(c => c.Title)
             .HasMaxLength(150)
             .IsRequired();
+        
+        builder.HasMany(b => b.Members)
+            .WithMany(u => u.Boards)
+            .UsingEntity(j => j.ToTable("BoardMembers"));
     }
 }
