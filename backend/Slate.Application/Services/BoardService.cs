@@ -24,11 +24,22 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         throw new NotImplementedException();
     }
 
-    public async Task<BoardDto?> GetById(Guid id)
+    public Task Delete(Guid userId, Guid cardId)
     {
-        var board = await boardRepository.GetById(id);
+        throw new NotImplementedException();
+    }
+
+    public async Task<BoardDto?> GetById(Guid boardId)
+    {
+        var board = await boardRepository.GetById(boardId);
         if (board is null)
             throw new Exception("Board not found."); // TODO: make a custom exception
         return board.ToDto();
+    }
+
+    public async Task<List<BoardDto>> GetBoardsByUserId(Guid userId)
+    {
+        var boards = await boardRepository.GetBoardsByUserId(userId);
+        return boards.Select(b => b.ToDto(true)).ToList();
     }
 }

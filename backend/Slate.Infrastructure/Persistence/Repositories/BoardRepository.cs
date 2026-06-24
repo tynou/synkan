@@ -21,4 +21,12 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
                 .ThenInclude(c => c.Cards)
             .FirstOrDefaultAsync(b => b.Id == boardId);
     }
+
+    public async Task<List<Board>> GetBoardsByUserId(Guid userId)
+    {
+        return await context.Boards
+            .AsNoTracking()
+            .Where(b => b.Members.Any(m => m.Id == userId))
+            .ToListAsync();
+    }
 }
