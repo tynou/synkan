@@ -5,23 +5,23 @@ namespace Slate.Application.Mappers;
 
 public static class ModelToDtoMappers
 {
-    public static BoardDto ToDto(this Board board)
+    public static BoardDto ToDto(this Board board, bool flat = false)
     {
         return new BoardDto(
             board.Id,
             board.OwnerId,
             board.Title,
-            board.Members.Select(u => u.ToDto()),
-            board.Columns.Select(c => c.ToDto())
+            flat ? [] : board.Members.Select(u => u.ToDto()),
+            flat ? [] : board.Columns.Select(c => c.ToDto())
         );
     }
 
-    public static ColumnDto ToDto(this Column column)
+    public static ColumnDto ToDto(this Column column, bool flat = false)
     {
         return new ColumnDto(
             column.Id,
             column.BoardId,
-            column.Cards.Select(c => c.ToDto())
+            flat ? [] : column.Cards.Select(c => c.ToDto())
         );
     }
 
