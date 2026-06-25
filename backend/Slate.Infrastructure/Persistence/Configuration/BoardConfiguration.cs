@@ -15,7 +15,7 @@ public class BoardConfiguration : IEntityTypeConfiguration<Board>
             .IsRequired();
         
         builder.HasMany(b => b.Members)
-            .WithMany(u => u.Boards)
+            .WithMany()
             .UsingEntity(j => j.ToTable("BoardMembers"));
     }
 }
