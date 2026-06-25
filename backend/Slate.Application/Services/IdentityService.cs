@@ -19,7 +19,7 @@ public class IdentityService(
             throw new Exception($"User with username {username} already exists."); // TODO: make a custom exception
         
         var passwordHash = passwordHasher.Hash(password);
-        var user = new User(Guid.NewGuid(), username, passwordHash);
+        var user = new User(username, passwordHash);
         
         await userRepository.AddAsync(user);
 
