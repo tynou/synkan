@@ -17,5 +17,10 @@ public class BoardConfiguration : IEntityTypeConfiguration<Board>
         builder.HasMany(b => b.Members)
             .WithMany()
             .UsingEntity(j => j.ToTable("BoardMembers"));
+
+        builder.HasMany(b => b.Columns)
+            .WithOne(c => c.Board)
+            .HasForeignKey(c => c.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -16,10 +16,5 @@ public class CardConfiguration : IEntityTypeConfiguration<Card>
 
         builder.Property(c => c.Description)
             .HasMaxLength(1000);
-        
-        builder.HasOne(c => c.Column) 
-            .WithMany(c => c.Cards)
-            .HasForeignKey(c => c.ColumnId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
