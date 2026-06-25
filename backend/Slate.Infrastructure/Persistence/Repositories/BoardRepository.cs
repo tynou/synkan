@@ -15,7 +15,6 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
     public async Task<Board?> GetById(Guid boardId)
     {
         return await context.Boards
-            .AsNoTracking()
             .Include(b => b.Members)
             .Include(b => b.Columns)
                 .ThenInclude(c => c.Cards)
@@ -29,4 +28,6 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
             .Where(b => b.Members.Any(m => m.Id == userId))
             .ToListAsync();
     }
+
+    public async Task SaveChangesAsync() => await context.SaveChangesAsync();
 }

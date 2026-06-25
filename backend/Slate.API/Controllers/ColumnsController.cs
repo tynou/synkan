@@ -23,7 +23,7 @@ public class ColumnsController(IColumnService columnService, ICurrentUserService
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateColumnRequest request)
     {
-        var result = await columnService.Create(currentUser.UserId, request.BoardId);
+        var result = await columnService.Create(currentUser.UserId, request.BoardId, request.Title);
         return CreatedAtAction("Get", "Boards", new { id = request.BoardId }, result);
     }
     

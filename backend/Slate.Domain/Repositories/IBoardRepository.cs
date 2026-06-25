@@ -9,4 +9,6 @@ public interface IBoardRepository
     Task<Board?> GetById(Guid boardId);
     
     Task<List<Board>> GetBoardsByUserId(Guid userId);
+
+    Task SaveChangesAsync();
 }

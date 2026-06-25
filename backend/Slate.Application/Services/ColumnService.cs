@@ -10,17 +10,18 @@ public class ColumnService(
     IColumnRepository columnRepository
     ) : IColumnService
 {
-    public async Task<Guid> Create(Guid userId, Guid boardId)
+    public async Task<Guid> Create(Guid userId, Guid boardId, string title)
     {
         var board = await boardRepository.GetById(boardId);
         if (board is null)
             throw new Exception("Board not found.");
 
-        if (board.OwnerId != userId)
+        if (!board.UserHasAccess(userId))
             throw new Exception("You do not have permission to modify this board.");
-        
-        var column = new Column(Guid.NewGuid(), boardId);
-        await columnRepository.Create(column);
+
+        var column = board.AddColumn(title);
+
+        await boardRepository.SaveChangesAsync();
         
         return column.Id;
     }
