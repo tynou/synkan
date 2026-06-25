@@ -1,4 +1,6 @@
-﻿using Slate.Application.Interfaces;
+﻿using Slate.Application.Dto.Response;
+using Slate.Application.Interfaces;
+using Slate.Application.Mappers;
 using Slate.Domain.Entities;
 using Slate.Domain.Repositories;
 
@@ -36,5 +38,13 @@ public class IdentityService(
         
         var token = jwtService.GenerateToken(user.Id);
         return token;
+    }
+
+    public async Task<UserDto> GetMe(Guid userId)
+    {
+        var user = await userRepository.GetByIdAsync(userId);
+        if (user is null)
+            throw new Exception("User does not exist.");
+        return user.ToDto();
     }
 }
