@@ -23,8 +23,8 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateCardRequest request)
     {
-        var result = await cardService.Create(currentUser.UserId, request.ColumnId, "title", "description");
-        return CreatedAtAction("Get", "Boards", null, result); 
+        var result = await cardService.Create(currentUser.UserId, request.BoardId, request.ColumnId, request.Title);
+        return CreatedAtAction("Get", "Boards", new { id = request.BoardId }, result); 
     }
     
     [HttpDelete("{id:guid}")]

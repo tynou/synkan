@@ -4,7 +4,7 @@ namespace Slate.Application.Interfaces;
 
 public interface ICardService
 {
-    Task<Guid> Create(Guid userId, Guid columnId, string title, string description);
+    Task<Guid> Create(Guid userId, Guid boardId, Guid columnId, string title);
     
     Task Delete(Guid userId, Guid cardId);
     
