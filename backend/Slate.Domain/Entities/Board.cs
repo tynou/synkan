@@ -16,7 +16,7 @@ public class Board
     
     public Board(User owner, string title)
     {
-        Id = Guid.NewGuid();
+        // Id = Guid.NewGuid();
         OwnerId = owner.Id;
         Title = title;
         
@@ -27,5 +27,20 @@ public class Board
     { 
         if (_members.All(m => m.Id != user.Id))
             _members.Add(user);
+    }
+    
+    public Column AddColumn(string title)
+    {
+        var nextPosition = _columns.Count;
+
+        var column = new Column(Id, title, nextPosition);
+        _columns.Add(column);
+
+        return column;
+    }
+    
+    public bool UserHasAccess(Guid userId)
+    {
+        return OwnerId == userId || _members.Any(m => m.Id == userId);
     }
 }

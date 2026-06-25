@@ -8,9 +8,9 @@ public class User
 
     private User() { }
     
-    public User(Guid id, string username, string passwordHash)
+    public User(string username, string passwordHash)
     {
-        Id = id;
+        // Id = Guid.NewGuid();
         Username = username;
         PasswordHash = passwordHash;
     }
