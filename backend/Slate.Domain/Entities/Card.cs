@@ -19,4 +19,19 @@ public class Card
         Title = title;
         Description = string.Empty;
     }
+    
+    public void UpdatePosition(int newPosition)
+    {
+        Position = newPosition;
+    }
+    
+    public void SetTitle(string newTitle)
+    {
+        Title = newTitle;
+    }
+    
+    public void SetDescription(string newDescription)
+    {
+        Description = newDescription;
+    }
 }

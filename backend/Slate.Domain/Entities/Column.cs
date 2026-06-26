@@ -31,6 +31,19 @@ public class Column
 
         return card;
     }
+    
+    public void RemoveCard(Guid cardId)
+    {
+        var card = _cards.FirstOrDefault(c => c.Id == cardId);
+        if (card is null) return;
+
+        _cards.Remove(card);
+        
+        for (var i = 0; i < _cards.Count; i++)
+        {
+            _cards[i].UpdatePosition(i); 
+        }
+    }
 
     public void UpdatePosition(int newPosition)
     {
