@@ -27,11 +27,19 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
         
         return CreatedAtAction(nameof(Get), new { id = result }, result);
     }
+
+    [HttpPost("{id:guid}/members")]
+    public async Task<ActionResult> AddMember(Guid id, [FromBody] AddBoardMemberRequest request)
+    {
+        await boardService.AddMember(currentUser.UserId, id, request.MemberId);
+        return Ok();
+    }
     
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Edit(Guid id)
+    public async Task<ActionResult> Edit(Guid id, [FromBody] EditBoardRequest request)
     {
-        return NoContent();
+        await boardService.Edit(currentUser.UserId, id, request.NewTitle);
+        return Ok();
     }
     
     [HttpDelete("{id:guid}")]

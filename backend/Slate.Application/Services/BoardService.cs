@@ -19,14 +19,48 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         return board.Id;
     }
 
-    public Task AddMember(Guid userId, Guid memberId, Guid boardId)
+    public async Task AddMember(Guid userId, Guid boardId, Guid memberId)
     {
-        throw new NotImplementedException();
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+
+        if (!board.UserHasAccess(userId))
+            throw new Exception("You do not have permission to add members to this board.");
+        
+        var member = await userRepository.GetByIdAsync(memberId);
+        if (member is null)
+            throw new Exception("Member user not found.");
+        
+        board.AddMember(member);
+
+        await boardRepository.SaveChangesAsync();
     }
 
-    public Task Delete(Guid userId, Guid cardId)
+    public async Task Edit(Guid userId, Guid boardId, string newTitle)
     {
-        throw new NotImplementedException();
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+
+        if (!board.UserHasAccess(userId))
+            throw new Exception("You do not have permission to edit this board.");
+        
+        board.SetTitle(newTitle);
+        
+        await boardRepository.SaveChangesAsync();
+    }
+
+    public async Task Delete(Guid userId, Guid boardId)
+    {
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+
+        if (!board.UserHasAccess(userId))
+            throw new Exception("You do not have permission to delete this board.");
+
+        await boardRepository.Delete(boardId);
     }
 
     public async Task<BoardDto?> GetById(Guid boardId)

@@ -6,9 +6,11 @@ public interface IBoardService
 {
     Task<Guid> Create(Guid userId, string title);
 
-    Task AddMember(Guid userId, Guid memberId, Guid boardId);
+    Task AddMember(Guid userId, Guid boardId, Guid memberId);
     
-    Task Delete(Guid userId, Guid cardId);
+    Task Edit(Guid userId, Guid boardId, string newTitle);
+    
+    Task Delete(Guid userId, Guid boardId);
     
     Task<BoardDto?> GetById(Guid boardId);
     
