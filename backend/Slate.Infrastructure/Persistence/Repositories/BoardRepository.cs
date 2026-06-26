@@ -12,6 +12,12 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
         await context.SaveChangesAsync();
     }
 
+    public async Task Delete(Guid boardId)
+    {
+        context.Boards.Remove(context.Boards.First(b => b.Id == boardId));
+        await context.SaveChangesAsync();
+    }
+
     public async Task<Board?> GetById(Guid boardId)
     {
         return await context.Boards
@@ -27,6 +33,13 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
             .AsNoTracking()
             .Where(b => b.Members.Any(m => m.Id == userId))
             .ToListAsync();
+    }
+
+    public async Task<bool> UserHasAccess(Guid userId, Guid boardId)
+    {
+        var task = new Task<bool>(() => true);
+        task.Start();
+        return await task;
     }
 
     public async Task SaveChangesAsync() => await context.SaveChangesAsync();
