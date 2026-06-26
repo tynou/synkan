@@ -1,6 +1,5 @@
 ﻿using Slate.Application.Dto.Response;
 using Slate.Application.Interfaces;
-using Slate.Domain.Entities;
 using Slate.Domain.Repositories;
 
 namespace Slate.Application.Services;
@@ -26,9 +25,37 @@ public class ColumnService(
         return column.Id;
     }
 
+    public async Task Edit(Guid userId, Guid columnId, string newTitle)
+    {
+        var column = await columnRepository.GetById(columnId);
+        if (column is null)
+            throw new Exception("Column not found.");
+        
+        var hasAccess = await boardRepository.UserHasAccess(userId, column.BoardId);
+        if (!hasAccess)
+            throw new Exception("You do not have permission to modify this column.");
+        
+        column.SetTitle(newTitle);
+        
+        await columnRepository.SaveChangesAsync();
+    }
+
     public async Task Delete(Guid userId, Guid columnId)
     {
-        throw new NotImplementedException();
+        var column = await columnRepository.GetById(columnId);
+        if (column is null)
+            throw new Exception("Column not found.");
+        
+        var board = await boardRepository.GetById(column.BoardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+        
+        if (!board.UserHasAccess(userId))
+            throw new Exception("You do not have permission to delete this column.");
+        
+        board.RemoveColumn(columnId);
+        
+        await columnRepository.SaveChangesAsync();
     }
 
     public async Task<ColumnDto?> GetById(Guid columnId)

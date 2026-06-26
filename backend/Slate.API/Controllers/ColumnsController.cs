@@ -28,9 +28,10 @@ public class ColumnsController(IColumnService columnService, ICurrentUserService
     }
     
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Edit(Guid id)
+    public async Task<ActionResult> Edit(Guid id, [FromBody] EditColumnRequest request)
     {
-        return NoContent();
+        await columnService.Edit(currentUser.UserId, id, request.NewTitle);
+        return Ok();
     }
 
     [HttpDelete("{id:guid}")]
