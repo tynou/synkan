@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Slate.Application.Dto.Request;
 using Slate.Application.Dto.Response;
 using Slate.Application.Interfaces;
-using Slate.Application.Mappers;
-using Slate.Domain.Repositories;
 
 namespace Slate.API.Controllers;
 
