@@ -32,7 +32,24 @@ public class CardService(
 
     public async Task Delete(Guid userId, Guid cardId)
     {
-        throw new NotImplementedException();
+        var card = await cardRepository.GetById(cardId);
+        if (card is null)
+            throw new Exception("Card not found.");
+        
+        var column = await columnRepository.GetById(card.ColumnId);
+        if (column is null)
+            throw new Exception("Column not found.");
+        
+        var board = await boardRepository.GetById(column.BoardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+        
+        if (!board.UserHasAccess(userId))
+            throw new Exception("You do not have permission to delete this card.");
+        
+        column.RemoveCard(cardId);
+        
+        await cardRepository.SaveChangesAsync();
     }
 
     public async Task<CardDto?> GetById(Guid cardId)

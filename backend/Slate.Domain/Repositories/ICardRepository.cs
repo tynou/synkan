@@ -8,6 +8,8 @@ public interface ICardRepository
     
     Task Delete(Guid cardId);
     
+    Task<Guid> GetBoardIdByCardId(Guid cardId);
+    
     Task<Card?> GetById(Guid cardId);
     
     Task SaveChangesAsync();
