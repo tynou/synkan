@@ -58,6 +58,7 @@ public static class Program
         services.AddScoped<IBoardService, BoardService>();
         services.AddScoped<IColumnService, ColumnService>();
         services.AddScoped<ICardService, CardService>();
+        services.AddScoped<IUserService, UserService>();
     }
 
     private static void AddRepositories(this IServiceCollection services)

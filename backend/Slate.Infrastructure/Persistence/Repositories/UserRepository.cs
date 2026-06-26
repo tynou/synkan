@@ -18,6 +18,13 @@ public class UserRepository(AppDbContext context) : IUserRepository
             .FirstOrDefaultAsync(x => x.Username == username);
     }
 
+    public async Task<List<User>> GetAllAsync(string username)
+    {
+        return await context.Users
+            .Where(u => EF.Functions.Like(u.Username, $"%{username}%"))
+            .ToListAsync();
+    }
+
     public async Task<User?> GetByIdAsync(Guid id)
     {
         return await context.Users

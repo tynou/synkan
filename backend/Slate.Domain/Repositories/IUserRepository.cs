@@ -8,5 +8,7 @@ public interface IUserRepository
     
     Task<User?> GetByUsernameAsync(string username);
     
+    Task<List<User>> GetAllAsync(string username);
+    
     Task<User?> GetByIdAsync(Guid id);
 }
