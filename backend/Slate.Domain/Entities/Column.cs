@@ -31,4 +31,14 @@ public class Column
 
         return card;
     }
+
+    public void UpdatePosition(int newPosition)
+    {
+        Position = newPosition;
+    }
+    
+    public void SetTitle(string newTitle)
+    {
+        Title = newTitle;
+    }
 }

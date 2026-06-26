@@ -39,6 +39,24 @@ public class Board
         return column;
     }
     
+    public void RemoveColumn(Guid columnId)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null) return;
+
+        _columns.Remove(column);
+        
+        for (var i = 0; i < _columns.Count; i++)
+        {
+            _columns[i].UpdatePosition(i); 
+        }
+    }
+
+    public void SetTitle(string newTitle)
+    {
+        Title = newTitle;
+    }
+    
     public bool UserHasAccess(Guid userId)
     {
         return OwnerId == userId || _members.Any(m => m.Id == userId);
