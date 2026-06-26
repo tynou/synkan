@@ -21,8 +21,12 @@ public class ColumnRepository(AppDbContext context) : IColumnRepository
     public async Task<Column?> GetById(Guid columnId)
     {
         return await context.Columns
-            .AsNoTracking()
             .Include(c => c.Cards)
             .FirstOrDefaultAsync(b => b.Id == columnId);
+    }
+    
+    public async Task SaveChangesAsync()
+    {
+        await context.SaveChangesAsync();
     }
 }

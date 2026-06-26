@@ -9,4 +9,6 @@ public interface ICardRepository
     Task Delete(Guid cardId);
     
     Task<Card?> GetById(Guid cardId);
+    
+    Task SaveChangesAsync();
 }

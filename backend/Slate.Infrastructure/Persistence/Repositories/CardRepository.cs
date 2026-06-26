@@ -24,4 +24,9 @@ public class CardRepository(AppDbContext context) : ICardRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == cardId);
     }
+
+    public async Task SaveChangesAsync()
+    {
+        await context.SaveChangesAsync();
+    }
 }

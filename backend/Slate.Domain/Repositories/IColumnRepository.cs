@@ -9,4 +9,6 @@ public interface IColumnRepository
     Task Delete(Guid columnId);
     
     Task<Column?> GetById(Guid columnId);
+    
+    Task SaveChangesAsync();
 }
