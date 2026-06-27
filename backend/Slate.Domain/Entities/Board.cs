@@ -1,4 +1,6 @@
-﻿namespace Slate.Domain.Entities;
+﻿using Slate.Domain.Enums;
+
+namespace Slate.Domain.Entities;
 
 public class Board
 {
@@ -6,8 +8,8 @@ public class Board
     public Guid OwnerId { get; private set; }
     public string Title { get; private set; }
 
-    private readonly List<User> _members = [];
-    public IReadOnlyCollection<User> Members => _members.AsReadOnly();
+    private readonly List<BoardMember> _members = [];
+    public IReadOnlyCollection<BoardMember> Members => _members.AsReadOnly();
 
     private readonly List<Column> _columns = [];
     public IReadOnlyCollection<Column> Columns => _columns.AsReadOnly();
@@ -20,18 +22,20 @@ public class Board
         OwnerId = owner.Id;
         Title = title;
         
-        AddMember(owner);
+        AddMember(owner.Id, AccessLevel.Admin);
     }
     
-    public void AddMember(User user)
+    public void AddMember(Guid userId, AccessLevel accessLevel)
     { 
-        if (_members.All(m => m.Id != user.Id))
-            _members.Add(user);
+        if (_members.All(m => m.UserId != userId))
+            _members.Add(new BoardMember(Id, userId, accessLevel));
     }
 
     public void RemoveMember(Guid userId)
     {
-        var member = _members.FirstOrDefault(c => c.Id == userId);
+        if (userId == OwnerId) return;
+        
+        var member = _members.FirstOrDefault(m => m.UserId == userId);
         if (member is null) return;
 
         _members.Remove(member);
@@ -85,6 +89,6 @@ public class Board
     
     public bool UserHasAccess(Guid userId)
     {
-        return OwnerId == userId || _members.Any(m => m.Id == userId);
+        return OwnerId == userId || _members.Any(m => m.UserId == userId);
     }
 }

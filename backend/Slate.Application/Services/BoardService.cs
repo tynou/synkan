@@ -2,6 +2,7 @@
 using Slate.Application.Interfaces;
 using Slate.Application.Mappers;
 using Slate.Domain.Entities;
+using Slate.Domain.Enums;
 using Slate.Domain.Repositories;
 
 namespace Slate.Application.Services;
@@ -32,7 +33,7 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         if (member is null)
             throw new Exception("Member user not found.");
         
-        board.AddMember(member);
+        board.AddMember(member.Id, AccessLevel.Member);
 
         await boardRepository.SaveChangesAsync();
     }

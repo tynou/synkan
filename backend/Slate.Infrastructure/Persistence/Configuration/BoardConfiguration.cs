@@ -15,11 +15,12 @@ public class BoardConfiguration : IEntityTypeConfiguration<Board>
             .IsRequired();
         
         builder.HasMany(b => b.Members)
-            .WithMany()
-            .UsingEntity(j => j.ToTable("BoardMembers"));
+            .WithOne()
+            .HasForeignKey(bm => bm.BoardId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasMany(b => b.Columns)
-            .WithOne(c => c.Board)
+            .WithOne(b => b.Board)
             .HasForeignKey(c => c.BoardId)
             .OnDelete(DeleteBehavior.Cascade);
     }

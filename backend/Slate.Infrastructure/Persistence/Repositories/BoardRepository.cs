@@ -31,7 +31,7 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
     {
         return await context.Boards
             .AsNoTracking()
-            .Where(b => b.Members.Any(m => m.Id == userId))
+            .Where(b => b.Members.Any(m => m.UserId == userId))
             .ToListAsync();
     }
 

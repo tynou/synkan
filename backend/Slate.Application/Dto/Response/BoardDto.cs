@@ -4,6 +4,6 @@ public record BoardDto(
     Guid Id,
     Guid OwnerId,
     string Title,
-    IEnumerable<UserDto> Members,
+    IEnumerable<BoardMemberDto> Members,
     IEnumerable<ColumnDto> Columns
 );
