@@ -28,6 +28,14 @@ public class Board
         if (_members.All(m => m.Id != user.Id))
             _members.Add(user);
     }
+
+    public void RemoveMember(Guid userId)
+    {
+        var member = _members.FirstOrDefault(c => c.Id == userId);
+        if (member is null) return;
+
+        _members.Remove(member);
+    }
     
     public Column AddColumn(string title)
     {
@@ -49,6 +57,24 @@ public class Board
         for (var i = 0; i < _columns.Count; i++)
         {
             _columns[i].UpdatePosition(i); 
+        }
+    }
+    
+    public void MoveColumn(Guid columnId, int newPosition)
+    {
+        var column = _columns.FirstOrDefault(c => c.Id == columnId);
+        if (column is null) return;
+
+        if (column.Position == newPosition) return;
+        
+        newPosition = Math.Max(0, Math.Min(newPosition, _columns.Count - 1));
+        
+        _columns.Remove(column);
+        _columns.Insert(newPosition, column);
+        
+        for (var i = 0; i < _columns.Count; i++)
+        {
+            _columns[i].UpdatePosition(i);
         }
     }
 

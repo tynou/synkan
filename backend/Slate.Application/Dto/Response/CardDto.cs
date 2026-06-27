@@ -4,5 +4,6 @@ public record CardDto(
     Guid Id,
     Guid ColumnId,
     string Title,
-    string Description
+    string Description,
+    int Position
 );

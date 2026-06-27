@@ -16,11 +16,24 @@ public static class ModelToDtoMappers
         );
     }
 
+    public static BoardLookupDto ToLookupDto(this Board board)
+    {
+        return new BoardLookupDto(
+            board.Id,
+            board.OwnerId,
+            board.Title,
+            board.Members.Count,
+            board.Columns.Count
+        );
+    }
+
     public static ColumnDto ToDto(this Column column, bool flat = false)
     {
         return new ColumnDto(
             column.Id,
             column.BoardId,
+            column.Title,
+            column.Position,
             flat ? [] : column.Cards.Select(c => c.ToDto())
         );
     }
@@ -31,7 +44,8 @@ public static class ModelToDtoMappers
             card.Id,
             card.ColumnId,
             card.Title,
-            card.Description
+            card.Description,
+            card.Position
         );
     }
 

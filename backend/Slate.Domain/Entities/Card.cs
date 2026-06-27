@@ -19,6 +19,11 @@ public class Card
         Title = title;
         Description = string.Empty;
     }
+
+    public void MoveToColumn(Guid newColumnId)
+    {
+        ColumnId = newColumnId;
+    }
     
     public void UpdatePosition(int newPosition)
     {

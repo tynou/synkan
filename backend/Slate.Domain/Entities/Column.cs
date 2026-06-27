@@ -32,16 +32,42 @@ public class Column
         return card;
     }
     
-    public void RemoveCard(Guid cardId)
+    public void RemoveCard(Card card)
     {
-        var card = _cards.FirstOrDefault(c => c.Id == cardId);
-        if (card is null) return;
-
         _cards.Remove(card);
         
         for (var i = 0; i < _cards.Count; i++)
         {
             _cards[i].UpdatePosition(i); 
+        }
+    }
+
+    public void MoveCard(Card card, int newPosition)
+    {
+        if (card.Position == newPosition) return;
+        
+        newPosition = Math.Max(0, Math.Min(newPosition, _cards.Count - 1));
+        
+        _cards.Remove(card);
+        _cards.Insert(newPosition, card);
+        
+        for (var i = 0; i < _cards.Count; i++)
+        {
+            _cards[i].UpdatePosition(i);
+        }
+    }
+    
+    public void InsertCard(Card card, int newPosition)
+    {
+        newPosition = Math.Clamp(newPosition, 0, _cards.Count);
+
+        _cards.Insert(newPosition, card);
+        
+        card.MoveToColumn(Id);
+
+        for (var i = 0; i < _cards.Count; i++)
+        {
+            _cards[i].UpdatePosition(i);
         }
     }
 
