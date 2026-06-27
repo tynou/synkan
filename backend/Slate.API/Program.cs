@@ -49,6 +49,17 @@ public static class Program
         services.AddRouting(options => options.LowercaseUrls = true);
     }
 
+    private static void AddCors(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+            });
+        });
+    }
+
     private static void AddServices(this IServiceCollection services)
     {
         services.AddScoped<IJwtService, JwtService>();
@@ -144,6 +155,8 @@ public static class Program
 
     private static void ConfigureApp(this WebApplication app)
     {
+        app.UseCors("AllowFrontend");
+        
         app.UseAuthentication();
         app.UseAuthorization();
         
