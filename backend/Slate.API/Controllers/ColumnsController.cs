@@ -11,10 +11,10 @@ namespace Slate.API.Controllers;
 [Route("api/[controller]")]
 public class ColumnsController(IColumnService columnService, ICurrentUserService currentUser) : ControllerBase
 {
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ColumnDto>> Get(Guid id)
+    [HttpGet("{columnId:guid}")]
+    public async Task<ActionResult<ColumnDto>> Get(Guid columnId)
     {
-        var result = await columnService.GetById(id);
+        var result = await columnService.GetById(columnId);
         if (result is null)
             return NotFound("Column not found");
         return Ok(result);
@@ -24,20 +24,20 @@ public class ColumnsController(IColumnService columnService, ICurrentUserService
     public async Task<ActionResult<Guid>> Create([FromBody] CreateColumnRequest request)
     {
         var result = await columnService.Create(currentUser.UserId, request.BoardId, request.Title);
-        return CreatedAtAction("Get", "Boards", new { id = request.BoardId }, result);
+        return Ok(result);
     }
     
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Edit(Guid id, [FromBody] EditColumnRequest request)
+    [HttpPut("{columnId:guid}")]
+    public async Task<ActionResult> Update(Guid columnId, [FromBody] UpdateColumnRequest request)
     {
-        await columnService.Edit(currentUser.UserId, id, request.NewTitle);
+        await columnService.Update(currentUser.UserId, columnId, request.Title, request.Position);
         return Ok();
     }
 
-    [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [HttpDelete("{columnId:guid}")]
+    public async Task<ActionResult> Delete(Guid columnId)
     {
-        await columnService.Delete(currentUser.UserId, id);
+        await columnService.Delete(currentUser.UserId, columnId);
         return NoContent();
     }
 }

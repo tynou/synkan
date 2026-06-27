@@ -1,5 +1,6 @@
 ﻿using Slate.Application.Dto.Response;
 using Slate.Application.Interfaces;
+using Slate.Application.Mappers;
 using Slate.Domain.Repositories;
 
 namespace Slate.Application.Services;
@@ -25,19 +26,24 @@ public class ColumnService(
         return column.Id;
     }
 
-    public async Task Edit(Guid userId, Guid columnId, string newTitle)
+    public async Task Update(Guid userId, Guid columnId, string newTitle, int newPosition)
     {
         var column = await columnRepository.GetById(columnId);
         if (column is null)
             throw new Exception("Column not found.");
         
-        var hasAccess = await boardRepository.UserHasAccess(userId, column.BoardId);
-        if (!hasAccess)
+        var board = await boardRepository.GetById(column.BoardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+        
+        if (!board.UserHasAccess(userId))
             throw new Exception("You do not have permission to modify this column.");
         
         column.SetTitle(newTitle);
         
-        await columnRepository.SaveChangesAsync();
+        board.MoveColumn(columnId, newPosition);
+        
+        await boardRepository.SaveChangesAsync();
     }
 
     public async Task Delete(Guid userId, Guid columnId)
@@ -60,6 +66,10 @@ public class ColumnService(
 
     public async Task<ColumnDto?> GetById(Guid columnId)
     {
-        throw new NotImplementedException();
+        var column = await columnRepository.GetById(columnId);
+        if (column is null)
+            throw new Exception("Column not found.");
+
+        return column.ToDto();
     }
 }

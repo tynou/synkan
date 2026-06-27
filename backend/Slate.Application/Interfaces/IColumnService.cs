@@ -6,7 +6,7 @@ public interface IColumnService
 {
     Task<Guid> Create(Guid userId, Guid boardId,  string title);
     
-    Task Edit(Guid userId, Guid columnId, string newTitle);
+    Task Update(Guid userId, Guid columnId, string newTitle, int newPosition);
     
     Task Delete(Guid userId, Guid columnId);
     

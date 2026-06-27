@@ -21,7 +21,7 @@ public class ColumnRepository(AppDbContext context) : IColumnRepository
     public async Task<Column?> GetById(Guid columnId)
     {
         return await context.Columns
-            .Include(c => c.Cards)
+            .Include(c => c.Cards.OrderBy(card => card.Position))
             .FirstOrDefaultAsync(b => b.Id == columnId);
     }
     
