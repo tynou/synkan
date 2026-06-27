@@ -29,7 +29,6 @@ public class CardRepository(AppDbContext context) : ICardRepository
     public async Task<Card?> GetById(Guid cardId)
     {
         return await context.Cards
-            .AsNoTracking()
             .FirstOrDefaultAsync(b => b.Id == cardId);
     }
 
