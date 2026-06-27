@@ -4,6 +4,7 @@ public class Card
 {
     public Guid Id { get; private set; }
     public Guid ColumnId { get; private set; }
+    public Guid BoardId { get; private set; }
     public string Title { get; private set; }
     public string Description { get; private set; }
     public int Position { get; private set; }
@@ -12,12 +13,14 @@ public class Card
     
     private Card() { }
     
-    public Card(Guid columnId, string title, int position)
+    public Card(Guid columnId, Guid boardId, string title, int position)
     {
         // Id = Guid.NewGuid();
         ColumnId = columnId;
+        BoardId = boardId;
         Title = title;
         Description = string.Empty;
+        Position = position;
     }
 
     public void MoveToColumn(Guid newColumnId)

@@ -18,17 +18,11 @@ public class CardRepository(AppDbContext context) : ICardRepository
         await context.SaveChangesAsync();
     }
 
-    public async Task<Guid> GetBoardIdByCardId(Guid cardId)
-    {
-        return await context.Cards
-            .Where(c => c.Id == cardId)
-            .Select(c => c.Column.BoardId)
-            .FirstOrDefaultAsync();
-    }
-
     public async Task<Card?> GetById(Guid cardId)
     {
         return await context.Cards
+            .Include(c => c.Column)
+                .ThenInclude(col => col.Cards.OrderBy(card => card.Position))
             .FirstOrDefaultAsync(b => b.Id == cardId);
     }
 
