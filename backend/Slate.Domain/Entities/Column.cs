@@ -26,7 +26,7 @@ public class Column
     {
         var nextPosition = _cards.Count;
 
-        var card = new Card(Id, title, nextPosition);
+        var card = new Card(Id, BoardId, title, nextPosition);
         _cards.Add(card);
 
         return card;
