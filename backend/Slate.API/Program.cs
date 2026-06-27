@@ -78,6 +78,7 @@ public static class Program
         services.AddScoped<IBoardRepository, BoardRepository>();
         services.AddScoped<IColumnRepository, ColumnRepository>();
         services.AddScoped<ICardRepository, CardRepository>();
+        services.AddScoped<IBoardMemberRepository, BoardMemberRepository>();
     }
     
     private static void AddSwagger(this IServiceCollection services)

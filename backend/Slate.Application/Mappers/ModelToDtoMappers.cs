@@ -56,4 +56,9 @@ public static class ModelToDtoMappers
             user.Username
         );
     }
+
+    public static BoardMemberDto ToDto(this BoardMember boardMember)
+    {
+        return new BoardMemberDto(boardMember.UserId, boardMember.AccessLevel);
+    }
 }
