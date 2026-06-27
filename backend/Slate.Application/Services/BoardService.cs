@@ -37,14 +37,28 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         await boardRepository.SaveChangesAsync();
     }
 
-    public async Task Edit(Guid userId, Guid boardId, string newTitle)
+    public async Task RemoveMember(Guid userId, Guid boardId, Guid memberId)
     {
         var board = await boardRepository.GetById(boardId);
         if (board is null)
             throw new Exception("Board not found.");
 
         if (!board.UserHasAccess(userId))
-            throw new Exception("You do not have permission to edit this board.");
+            throw new Exception("You do not have permission to remove members from this board.");
+        
+        board.RemoveMember(memberId);
+        
+        await boardRepository.SaveChangesAsync();
+    }
+
+    public async Task Update(Guid userId, Guid boardId, string newTitle)
+    {
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+
+        if (!board.UserHasAccess(userId))
+            throw new Exception("You do not have permission to modify this board.");
         
         board.SetTitle(newTitle);
         
@@ -71,9 +85,9 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         return board.ToDto();
     }
 
-    public async Task<List<BoardDto>> GetBoardsByUserId(Guid userId)
+    public async Task<List<BoardLookupDto>> GetBoardsByUserId(Guid userId)
     {
         var boards = await boardRepository.GetBoardsByUserId(userId);
-        return boards.Select(b => b.ToDto(true)).ToList();
+        return boards.Select(b => b.ToLookupDto()).ToList();
     }
 }

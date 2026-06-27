@@ -11,10 +11,10 @@ namespace Slate.API.Controllers;
 [Route("api/[controller]")]
 public class BoardsController(IBoardService boardService, ICurrentUserService currentUser) : ControllerBase
 {
-    [HttpGet("{id:guid}")]
-    public async Task<ActionResult<BoardDto>> Get(Guid id)
+    [HttpGet("{boardId:guid}")]
+    public async Task<ActionResult<BoardDto>> Get(Guid boardId)
     {
-        var result = await boardService.GetById(id);
+        var result = await boardService.GetById(boardId);
         if (result is null)
             return NotFound("Board not found");
         return Ok(result);
@@ -24,33 +24,39 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
     public async Task<ActionResult<Guid>> Create([FromBody] CreateBoardRequest request)
     {
         var result = await boardService.Create(currentUser.UserId, request.Title);
-        
-        return CreatedAtAction(nameof(Get), new { id = result }, result);
+        return Ok(result);
     }
 
-    [HttpPost("{id:guid}/members")]
-    public async Task<ActionResult> AddMember(Guid id, [FromBody] AddBoardMemberRequest request)
+    [HttpPost("{boardId:guid}/members")]
+    public async Task<ActionResult> AddMember(Guid boardId, [FromBody] AddBoardMemberRequest request)
     {
-        await boardService.AddMember(currentUser.UserId, id, request.MemberId);
+        await boardService.AddMember(currentUser.UserId, boardId, request.MemberId);
         return Ok();
     }
     
-    [HttpPut("{id:guid}")]
-    public async Task<ActionResult> Edit(Guid id, [FromBody] EditBoardRequest request)
+    [HttpDelete("{boardId:guid}/members/{memberId:guid}")]
+    public async Task<ActionResult> RemoveMember(Guid boardId, Guid memberId)
     {
-        await boardService.Edit(currentUser.UserId, id, request.NewTitle);
+        await boardService.RemoveMember(currentUser.UserId, boardId, memberId);
         return Ok();
     }
     
-    [HttpDelete("{id:guid}")]
-    public async Task<ActionResult> Delete(Guid id)
+    [HttpPut("{boardId:guid}")]
+    public async Task<ActionResult> Update(Guid boardId, [FromBody] UpdateBoardRequest request)
     {
-        await boardService.Delete(currentUser.UserId, id);
+        await boardService.Update(currentUser.UserId, boardId, request.NewTitle);
+        return Ok();
+    }
+    
+    [HttpDelete("{boardId:guid}")]
+    public async Task<ActionResult> Delete(Guid boardId)
+    {
+        await boardService.Delete(currentUser.UserId, boardId);
         return NoContent();
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<BoardDto>>> GetMyBoards()
+    public async Task<ActionResult<List<BoardLookupDto>>> GetMyBoards()
     {
         var result = await boardService.GetBoardsByUserId(currentUser.UserId);
         return Ok(result);

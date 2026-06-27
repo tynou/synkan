@@ -8,11 +8,13 @@ public interface IBoardService
 
     Task AddMember(Guid userId, Guid boardId, Guid memberId);
     
-    Task Edit(Guid userId, Guid boardId, string newTitle);
+    Task RemoveMember(Guid userId, Guid boardId, Guid memberId);
+    
+    Task Update(Guid userId, Guid boardId, string newTitle);
     
     Task Delete(Guid userId, Guid boardId);
     
     Task<BoardDto?> GetById(Guid boardId);
     
-    Task<List<BoardDto>> GetBoardsByUserId(Guid userId);
+    Task<List<BoardLookupDto>> GetBoardsByUserId(Guid userId);
 }
