@@ -10,6 +10,7 @@ public static class ModelToDtoMappers
         return new BoardDto(
             board.Id,
             board.OwnerId,
+            board.IsPublic,
             board.Title,
             flat ? [] : board.Members.Select(u => u.ToDto()),
             flat ? [] : board.Columns.Select(c => c.ToDto())
@@ -21,6 +22,7 @@ public static class ModelToDtoMappers
         return new BoardLookupDto(
             board.Id,
             board.OwnerId,
+            board.IsPublic,
             board.Title,
             board.Members.Count,
             board.Columns.Count

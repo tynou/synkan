@@ -14,7 +14,7 @@ public class ColumnsController(IColumnService columnService, ICurrentUserService
     [HttpGet("{columnId:guid}")]
     public async Task<ActionResult<ColumnDto>> Get(Guid columnId)
     {
-        var result = await columnService.GetById(columnId);
+        var result = await columnService.GetById(currentUser.UserId, columnId);
         if (result is null)
             return NotFound("Column not found");
         return Ok(result);

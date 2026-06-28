@@ -78,11 +78,15 @@ public class CardService(
         await columnRepository.SaveChangesAsync();
     }
 
-    public async Task<CardDto?> GetById(Guid cardId)
+    public async Task<CardDto?> GetById(Guid userId, Guid cardId)
     {
         var card = await cardRepository.GetById(cardId);
         if (card is null)
             throw new Exception("Card not found.");
+        
+        var hasReadAccess = await boardRepository.UserHasReadAccess(card.BoardId, userId);
+        if (!hasReadAccess)
+            throw new Exception("You do not have permission to view this card.");
 
         return card.ToDto();
     }

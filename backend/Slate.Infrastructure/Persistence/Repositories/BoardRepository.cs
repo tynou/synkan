@@ -35,5 +35,15 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
             .ToListAsync();
     }
 
+    public async Task<bool> UserHasReadAccess(Guid boardId, Guid userId)
+    {
+        return await context.Boards
+            .AsNoTracking()
+            .Where(b => b.Id == boardId)
+            .AnyAsync(b => b.IsPublic
+                           || b.OwnerId == userId
+                           || b.Members.Any(m => m.UserId == userId));
+    }
+
     public async Task SaveChangesAsync() => await context.SaveChangesAsync();
 }

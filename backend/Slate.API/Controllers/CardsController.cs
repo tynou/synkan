@@ -14,7 +14,7 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
     [HttpGet("{cardId:guid}")]
     public async Task<ActionResult<CardDto>> Get(Guid cardId)
     {
-        var result = await cardService.GetById(cardId);
+        var result = await cardService.GetById(currentUser.UserId, cardId);
         if (result is null)
             return NotFound("Card not found");
         return Ok(result);

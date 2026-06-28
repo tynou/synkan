@@ -9,13 +9,13 @@ namespace Slate.Application.Services;
 
 public class BoardService(IBoardRepository boardRepository, IUserRepository userRepository) : IBoardService
 {
-    public async Task<Guid> Create(Guid userId, string title)
+    public async Task<Guid> Create(Guid userId, bool isPublic, string title)
     {
         var user = await userRepository.GetByIdAsync(userId);
         if (user is null)
             throw new Exception("User not found.");
         
-        var board = new Board(user, title);
+        var board = new Board(userId, isPublic, title);
         await boardRepository.Create(board);
         return board.Id;
     }
@@ -26,7 +26,7 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         if (board is null)
             throw new Exception("Board not found.");
 
-        if (!board.UserHasAccess(userId))
+        if (!board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to add members to this board.");
         
         var member = await userRepository.GetByIdAsync(memberId);
@@ -44,7 +44,7 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         if (board is null)
             throw new Exception("Board not found.");
 
-        if (!board.UserHasAccess(userId))
+        if (!board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to remove members from this board.");
         
         board.RemoveMember(memberId);
@@ -52,15 +52,21 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         await boardRepository.SaveChangesAsync();
     }
 
-    public async Task Update(Guid userId, Guid boardId, string newTitle)
+    public Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task Update(Guid userId, Guid boardId, bool newIsPublic, string newTitle)
     {
         var board = await boardRepository.GetById(boardId);
         if (board is null)
             throw new Exception("Board not found.");
 
-        if (!board.UserHasAccess(userId))
+        if (!board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to modify this board.");
         
+        board.SetVisibility(newIsPublic);
         board.SetTitle(newTitle);
         
         await boardRepository.SaveChangesAsync();
@@ -72,17 +78,21 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         if (board is null)
             throw new Exception("Board not found.");
 
-        if (!board.UserHasAccess(userId))
+        if (!board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to delete this board.");
 
         await boardRepository.Delete(boardId);
     }
 
-    public async Task<BoardDto?> GetById(Guid boardId)
+    public async Task<BoardDto?> GetById(Guid userId, Guid boardId)
     {
         var board = await boardRepository.GetById(boardId);
         if (board is null)
             throw new Exception("Board not found."); // TODO: make a custom exception
+        
+        if (!board.UserHasReadAccess(userId))
+            throw new Exception("You do not have permission to read this board.");
+        
         return board.ToDto();
     }
 

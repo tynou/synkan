@@ -16,7 +16,7 @@ public class ColumnService(
         if (board is null)
             throw new Exception("Board not found.");
 
-        if (!board.UserHasAccess(userId))
+        if (!board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to modify this board.");
 
         var column = board.AddColumn(title);
@@ -32,7 +32,7 @@ public class ColumnService(
         if (column is null)
             throw new Exception("Column not found.");
         
-        if (!column.Board.UserHasAccess(userId))
+        if (!column.Board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to modify this column.");
         
         column.SetTitle(newTitle);
@@ -48,7 +48,7 @@ public class ColumnService(
         if (column is null)
             throw new Exception("Column not found.");
         
-        if (!column.Board.UserHasAccess(userId))
+        if (!column.Board.UserHasWriteAccess(userId))
             throw new Exception("You do not have permission to delete this column.");
         
         column.Board.RemoveColumn(columnId);
@@ -56,11 +56,14 @@ public class ColumnService(
         await boardRepository.SaveChangesAsync();
     }
 
-    public async Task<ColumnDto?> GetById(Guid columnId)
+    public async Task<ColumnDto?> GetById(Guid userId, Guid columnId)
     {
-        var column = await columnRepository.GetById(columnId);
+        var column = await columnRepository.GetByIdWithBoard(columnId);
         if (column is null)
             throw new Exception("Column not found.");
+        
+        if (!column.Board.UserHasReadAccess(userId))
+            throw new Exception("You do not have permission to view this column.");
 
         return column.ToDto();
     }

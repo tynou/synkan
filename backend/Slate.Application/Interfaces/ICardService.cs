@@ -10,5 +10,5 @@ public interface ICardService
     
     Task Delete(Guid userId, Guid cardId);
     
-    Task<CardDto?> GetById(Guid cardId);
+    Task<CardDto?> GetById(Guid userId, Guid cardId);
 }

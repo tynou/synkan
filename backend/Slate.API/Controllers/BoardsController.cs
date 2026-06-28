@@ -14,7 +14,7 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
     [HttpGet("{boardId:guid}")]
     public async Task<ActionResult<BoardDto>> Get(Guid boardId)
     {
-        var result = await boardService.GetById(boardId);
+        var result = await boardService.GetById(currentUser.UserId, boardId);
         if (result is null)
             return NotFound("Board not found");
         return Ok(result);
@@ -23,7 +23,7 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateBoardRequest request)
     {
-        var result = await boardService.Create(currentUser.UserId, request.Title);
+        var result = await boardService.Create(currentUser.UserId, request.IsPublic, request.Title);
         return Ok(result);
     }
 
@@ -40,11 +40,18 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
         await boardService.RemoveMember(currentUser.UserId, boardId, memberId);
         return Ok();
     }
+
+    [HttpPut("{boardId:guid}/members/{memberId:guid}")]
+    public async Task<ActionResult> UpdateMemberAccessLevel(Guid boardId, Guid memberId, [FromBody]  UpdateMemberAccessLevelRequest request)
+    {
+        await boardService.UpdateMemberAccessLevel(currentUser.UserId, boardId, memberId, request.newAccessLevel);
+        return Ok();
+    }
     
     [HttpPut("{boardId:guid}")]
     public async Task<ActionResult> Update(Guid boardId, [FromBody] UpdateBoardRequest request)
     {
-        await boardService.Update(currentUser.UserId, boardId, request.NewTitle);
+        await boardService.Update(currentUser.UserId, boardId, request.newIsPublic, request.NewTitle);
         return Ok();
     }
     

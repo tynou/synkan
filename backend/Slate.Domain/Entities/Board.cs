@@ -6,6 +6,7 @@ public class Board
 {
     public Guid Id { get; private set; }
     public Guid OwnerId { get; private set; }
+    public bool IsPublic { get; private set; }
     public string Title { get; private set; }
 
     private readonly List<BoardMember> _members = [];
@@ -16,13 +17,14 @@ public class Board
     
     private Board() { }
     
-    public Board(User owner, string title)
+    public Board(Guid ownerId, bool isPublic, string title)
     {
         // Id = Guid.NewGuid();
-        OwnerId = owner.Id;
+        OwnerId = ownerId;
+        IsPublic = isPublic;
         Title = title;
         
-        AddMember(owner.Id, AccessLevel.Admin);
+        AddMember(ownerId, AccessLevel.Admin);
     }
     
     public void AddMember(Guid userId, AccessLevel accessLevel)
@@ -82,13 +84,23 @@ public class Board
         }
     }
 
+    public void SetVisibility(bool newIsPublic)
+    {
+        IsPublic = newIsPublic;
+    }
+
     public void SetTitle(string newTitle)
     {
         Title = newTitle;
     }
     
-    public bool UserHasAccess(Guid userId)
+    public bool UserHasReadAccess(Guid userId)
     {
-        return OwnerId == userId || _members.Any(m => m.UserId == userId);
+        return IsPublic || OwnerId == userId || _members.Any(m => m.UserId == userId);
+    }
+    
+    public bool UserHasWriteAccess(Guid userId)
+    {
+        return OwnerId == userId || _members.Where(m => m.AccessLevel > AccessLevel.Viewer).Any(m => m.UserId == userId);
     }
 }

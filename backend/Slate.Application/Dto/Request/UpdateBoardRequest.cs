@@ -1,3 +1,3 @@
 ﻿namespace Slate.Application.Dto.Request;
 
-public record UpdateBoardRequest(string NewTitle);
+public record UpdateBoardRequest(bool newIsPublic, string NewTitle);

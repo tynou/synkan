@@ -1,3 +1,3 @@
 ﻿namespace Slate.Application.Dto.Request;
 
-public record CreateBoardRequest(string Title);
+public record CreateBoardRequest(bool IsPublic, string Title);
