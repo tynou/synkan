@@ -61,6 +61,6 @@ public static class ModelToDtoMappers
 
     public static BoardMemberDto ToDto(this BoardMember boardMember)
     {
-        return new BoardMemberDto(boardMember.UserId, boardMember.AccessLevel);
+        return new BoardMemberDto(boardMember.UserId, boardMember.User.Username, boardMember.AccessLevel);
     }
 }

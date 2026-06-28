@@ -31,6 +31,8 @@ public class ColumnRepository(AppDbContext context) : IColumnRepository
             .Include(c => c.Cards.OrderBy(card => card.Position))
             .Include(c => c.Board)
                 .ThenInclude(b => b.Columns)
+            .Include(c => c.Board)
+                .ThenInclude(b => b.Members)
             .FirstOrDefaultAsync(b => b.Id == columnId);
     }
     

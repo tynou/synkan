@@ -10,6 +10,11 @@ public class BoardMemberConfiguration : IEntityTypeConfiguration<BoardMember>
     {
         builder.HasKey(bm => new { bm.BoardId, bm.UserId });
         
+        builder.HasOne(bm => bm.User)
+            .WithMany()
+            .HasForeignKey(bm => bm.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.Property(bm => bm.AccessLevel)
             .HasConversion<string>()
             .HasMaxLength(20)

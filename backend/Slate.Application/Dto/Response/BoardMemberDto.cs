@@ -2,4 +2,4 @@
 
 namespace Slate.Application.Dto.Response;
 
-public record BoardMemberDto(Guid UserId, AccessLevel AccessLevel);
+public record BoardMemberDto(Guid UserId, string Username, AccessLevel AccessLevel);

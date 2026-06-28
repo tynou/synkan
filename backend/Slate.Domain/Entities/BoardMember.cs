@@ -8,6 +8,8 @@ public class BoardMember
     public Guid UserId { get; private set; }
     public AccessLevel AccessLevel { get; private set; }
     
+    public User User { get; private set; }
+    
     private BoardMember() { }
 
     public BoardMember(Guid boardId, Guid userId, AccessLevel accessLevel)
