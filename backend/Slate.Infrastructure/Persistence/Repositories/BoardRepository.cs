@@ -35,12 +35,5 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
             .ToListAsync();
     }
 
-    public async Task<bool> UserHasAccess(Guid userId, Guid boardId)
-    {
-        var task = new Task<bool>(() => true);
-        task.Start();
-        return await task;
-    }
-
     public async Task SaveChangesAsync() => await context.SaveChangesAsync();
 }
