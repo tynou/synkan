@@ -4,12 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Slate.API.Middleware;
 using Slate.Application.Common;
 using Slate.Application.Interfaces;
 using Slate.Application.Services;
 using Slate.Domain.Repositories;
 using Slate.Infrastructure.Persistence;
 using Slate.Infrastructure.Persistence.Repositories;
+using StackExchange.Redis;
 
 namespace Slate.API;
 
@@ -42,6 +44,7 @@ public static class Program
         services.AddServices();
         services.AddRepositories();
         services.AddPostgres(configuration);
+        services.AddRedis(configuration);
         services.AddAuth();
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
@@ -155,6 +158,12 @@ public static class Program
         services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
     }
 
+    private static void AddRedis(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Redis") ?? "localhost:6379";
+        services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(connectionString));
+    }
+
     private static void ConfigureApp(this WebApplication app)
     {
         app.UseCors("AllowFrontend");
@@ -165,6 +174,8 @@ public static class Program
         
         app.UseAuthentication();
         app.UseAuthorization();
+        
+        app.UseMiddleware<RateLimiterMiddleware>();
         
         app.MapControllers();
         
