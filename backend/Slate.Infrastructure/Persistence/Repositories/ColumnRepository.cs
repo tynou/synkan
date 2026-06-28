@@ -25,6 +25,15 @@ public class ColumnRepository(AppDbContext context) : IColumnRepository
             .FirstOrDefaultAsync(b => b.Id == columnId);
     }
     
+    public async Task<Column?> GetByIdWithBoard(Guid columnId)
+    {
+        return await context.Columns
+            .Include(c => c.Cards.OrderBy(card => card.Position))
+            .Include(c => c.Board)
+                .ThenInclude(b => b.Columns)
+            .FirstOrDefaultAsync(b => b.Id == columnId);
+    }
+    
     public async Task SaveChangesAsync()
     {
         await context.SaveChangesAsync();

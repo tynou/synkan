@@ -28,40 +28,32 @@ public class ColumnService(
 
     public async Task Update(Guid userId, Guid columnId, string newTitle, int newPosition)
     {
-        var column = await columnRepository.GetById(columnId);
+        var column = await columnRepository.GetByIdWithBoard(columnId);
         if (column is null)
             throw new Exception("Column not found.");
         
-        var board = await boardRepository.GetById(column.BoardId);
-        if (board is null)
-            throw new Exception("Board not found.");
-        
-        if (!board.UserHasAccess(userId))
+        if (!column.Board.UserHasAccess(userId))
             throw new Exception("You do not have permission to modify this column.");
         
         column.SetTitle(newTitle);
         
-        board.MoveColumn(columnId, newPosition);
+        column.Board.MoveColumn(columnId, newPosition);
         
         await boardRepository.SaveChangesAsync();
     }
 
     public async Task Delete(Guid userId, Guid columnId)
     {
-        var column = await columnRepository.GetById(columnId);
+        var column = await columnRepository.GetByIdWithBoard(columnId);
         if (column is null)
             throw new Exception("Column not found.");
         
-        var board = await boardRepository.GetById(column.BoardId);
-        if (board is null)
-            throw new Exception("Board not found.");
-        
-        if (!board.UserHasAccess(userId))
+        if (!column.Board.UserHasAccess(userId))
             throw new Exception("You do not have permission to delete this column.");
         
-        board.RemoveColumn(columnId);
+        column.Board.RemoveColumn(columnId);
         
-        await columnRepository.SaveChangesAsync();
+        await boardRepository.SaveChangesAsync();
     }
 
     public async Task<ColumnDto?> GetById(Guid columnId)

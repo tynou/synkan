@@ -10,5 +10,7 @@ public interface IColumnRepository
     
     Task<Column?> GetById(Guid columnId);
     
+    Task<Column?> GetByIdWithBoard(Guid columnId);
+    
     Task SaveChangesAsync();
 }
