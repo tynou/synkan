@@ -23,7 +23,7 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] CreateCardRequest request)
     {
-        var result = await cardService.Create(currentUser.UserId, request.BoardId, request.ColumnId, request.Title);
+        var result = await cardService.Create(currentUser.UserId, request.ColumnId, request.Title);
         return Ok(result);
     }
     

@@ -13,22 +13,19 @@ public class CardService(
     IBoardMemberRepository boardMemberRepository
     ) : ICardService
 {
-    public async Task<Guid> Create(Guid userId, Guid boardId, Guid columnId, string title)
+    public async Task<Guid> Create(Guid userId, Guid columnId, string title)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new Exception("Board not found.");
-        
-        if (!board.UserHasAccess(userId))
-            throw new Exception("No access to this board.");
-        
-        var column = board.Columns.FirstOrDefault(c => c.Id == columnId);
+        var column = await columnRepository.GetById(columnId);
         if (column is null)
-            throw new Exception("Column not found on this board.");
+            throw new Exception("Column not found.");
+        
+        var member = await boardMemberRepository.GetAsync(column.BoardId, userId);
+        if (member is null || member.AccessLevel == AccessLevel.Viewer)
+            throw new Exception("You do not have permission to modify this board.");
         
         var card = column.AddCard(title);
         
-        await boardRepository.SaveChangesAsync();
+        await columnRepository.SaveChangesAsync();
 
         return card.Id;
     }
@@ -70,23 +67,15 @@ public class CardService(
     public async Task Delete(Guid userId, Guid cardId)
     {
         var card = await cardRepository.GetById(cardId);
-        if (card is null)
-            throw new Exception("Card not found.");
+        if (card is null) throw new Exception("Card not found.");
         
-        var column = await columnRepository.GetById(card.ColumnId);
-        if (column is null)
-            throw new Exception("Column not found.");
+        var member = await boardMemberRepository.GetAsync(card.BoardId, userId);
+        if (member is null || member.AccessLevel == AccessLevel.Viewer)
+            throw new Exception("You do not have permission to modify this board.");
         
-        var board = await boardRepository.GetById(column.BoardId);
-        if (board is null)
-            throw new Exception("Board not found.");
+        card.Column.RemoveCard(card);
         
-        if (!board.UserHasAccess(userId))
-            throw new Exception("You do not have permission to delete this card.");
-        
-        column.RemoveCard(card);
-        
-        await cardRepository.SaveChangesAsync();
+        await columnRepository.SaveChangesAsync();
     }
 
     public async Task<CardDto?> GetById(Guid cardId)
