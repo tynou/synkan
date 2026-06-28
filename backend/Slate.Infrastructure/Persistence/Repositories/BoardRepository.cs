@@ -32,6 +32,10 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
         return await context.Boards
             .AsNoTracking()
             .Where(b => b.Members.Any(m => m.UserId == userId))
+            .Include(b => b.Members)
+                .ThenInclude(m => m.User)
+            .Include(b => b.Columns.OrderBy(c => c.Position))
+                .ThenInclude(c => c.Cards.OrderBy(card => card.Position))
             .ToListAsync();
     }
 
