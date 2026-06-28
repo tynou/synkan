@@ -37,6 +37,7 @@ public static class Program
     
     private static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddCors();
         services.AddControllers();
         services.AddServices();
         services.AddRepositories();
@@ -157,6 +158,10 @@ public static class Program
     private static void ConfigureApp(this WebApplication app)
     {
         app.UseCors("AllowFrontend");
+        
+        app.UseHttpsRedirection();
+        
+        app.UseForwardedHeaders();
         
         app.UseAuthentication();
         app.UseAuthorization();
