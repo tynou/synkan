@@ -52,9 +52,18 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         await boardRepository.SaveChangesAsync();
     }
 
-    public Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel)
+    public async Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel)
     {
-        throw new NotImplementedException();
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new Exception("Board not found.");
+
+        if (!board.UserHasWriteAccess(userId))
+            throw new Exception("You do not have permission to modify this board.");
+        
+        board.SetMemberAccessLevel(memberId, newAccessLevel);
+        
+        await boardRepository.SaveChangesAsync();
     }
 
     public async Task Update(Guid userId, Guid boardId, bool newIsPublic, string newTitle)

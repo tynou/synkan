@@ -42,6 +42,15 @@ public class Board
 
         _members.Remove(member);
     }
+
+    public void SetMemberAccessLevel(Guid userId, AccessLevel accessLevel)
+    {
+        if (userId == OwnerId) return;
+        
+        var member = _members.FirstOrDefault(m => m.UserId == userId);
+
+        member?.UpdateAccessLevel(accessLevel);
+    }
     
     public Column AddColumn(string title)
     {
