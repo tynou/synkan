@@ -24,10 +24,22 @@
       - "6379:6379"
     networks:
       - slate
+  
+  redis-insight:
+    image: redis/redisinsight:3.6
+    container_name: slate-redis-insight
+    restart: unless-stopped
+    volumes:
+      - redis_insight_data:/data
+    ports:
+      - "5540:5540"
+    networks:
+      - slate
 
 volumes:
   postgres_data:
   redis_data:
+  redis_insight_data:
 
 networks:
   slate:
