@@ -11,9 +11,9 @@ namespace Slate.API.Controllers;
 public class UsersController(IUserService userService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<UserDto>>> Get([FromQuery] string username)
+    public async Task<ActionResult<UserListResponse>> Get([FromQuery] string username)
     {
         var result = await userService.GetAll(username);
-        return Ok(result);
+        return Ok(new UserListResponse(result));
     }
 }

@@ -15,16 +15,14 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
     public async Task<ActionResult<BoardDto>> Get(Guid boardId)
     {
         var result = await boardService.GetById(currentUser.UserId, boardId);
-        if (result is null)
-            return NotFound("Board not found");
         return Ok(result);
     }
     
     [HttpPost]
-    public async Task<ActionResult<Guid>> Create([FromBody] CreateBoardRequest request)
+    public async Task<ActionResult<CreationResponse>> Create([FromBody] CreateBoardRequest request)
     {
         var result = await boardService.Create(currentUser.UserId, request.IsPublic, request.Title);
-        return Ok(result);
+        return Ok(new CreationResponse(result));
     }
 
     [HttpPost("{boardId:guid}/members")]

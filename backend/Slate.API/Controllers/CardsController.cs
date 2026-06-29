@@ -15,16 +15,14 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
     public async Task<ActionResult<CardDto>> Get(Guid cardId)
     {
         var result = await cardService.GetById(currentUser.UserId, cardId);
-        if (result is null)
-            return NotFound("Card not found");
         return Ok(result);
     }
     
     [HttpPost]
-    public async Task<ActionResult<Guid>> Create([FromBody] CreateCardRequest request)
+    public async Task<ActionResult<CreationResponse>> Create([FromBody] CreateCardRequest request)
     {
         var result = await cardService.Create(currentUser.UserId, request.ColumnId, request.Title);
-        return Ok(result);
+        return Ok(new CreationResponse(result));
     }
     
     [HttpPut("{cardId:guid}")]

@@ -11,17 +11,17 @@ namespace Slate.API.Controllers;
 public class AuthController(IIdentityService identityService, ICurrentUserService currentUser) : ControllerBase
 {
     [HttpPost("register")]
-    public async Task<ActionResult<string>> Register([FromBody] RegisterRequest request)
+    public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
-        var result = await identityService.Register(request.Username, request.Password);
-        return Ok(result);
+        var token = await identityService.Register(request.Username, request.Password);
+        return Ok(new AuthResponse(token));
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
-        var result = await identityService.Login(request.Username, request.Password);
-        return Ok(result);
+        var token = await identityService.Login(request.Username, request.Password);
+        return Ok(new AuthResponse(token));
     }
 
     [Authorize]

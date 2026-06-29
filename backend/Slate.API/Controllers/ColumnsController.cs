@@ -15,16 +15,14 @@ public class ColumnsController(IColumnService columnService, ICurrentUserService
     public async Task<ActionResult<ColumnDto>> Get(Guid columnId)
     {
         var result = await columnService.GetById(currentUser.UserId, columnId);
-        if (result is null)
-            return NotFound("Column not found");
         return Ok(result);
     }
     
     [HttpPost]
-    public async Task<ActionResult<Guid>> Create([FromBody] CreateColumnRequest request)
+    public async Task<ActionResult<CreationResponse>> Create([FromBody] CreateColumnRequest request)
     {
         var result = await columnService.Create(currentUser.UserId, request.BoardId, request.Title);
-        return Ok(result);
+        return Ok(new CreationResponse(result));
     }
     
     [HttpPut("{columnId:guid}")]
