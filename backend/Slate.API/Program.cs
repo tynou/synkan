@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Slate.API.Handlers;
 using Slate.API.Middleware;
 using Slate.Application.Common;
 using Slate.Application.Interfaces;
@@ -39,6 +40,9 @@ public static class Program
     
     private static void ConfigureServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
+        
         services.AddCors();
         services.AddControllers();
         services.AddServices();
@@ -166,6 +170,8 @@ public static class Program
 
     private static void ConfigureApp(this WebApplication app)
     {
+        app.UseExceptionHandler();
+        
         app.UseCors("AllowFrontend");
         
         app.UseHttpsRedirection();
