@@ -17,7 +17,7 @@ public interface IBoardService
     
     Task Delete(Guid userId, Guid boardId);
     
-    Task<BoardDto?> GetById(Guid userId, Guid boardId);
+    Task<BoardDto> GetById(Guid userId, Guid boardId);
     
     Task<List<BoardLookupDto>> GetBoardsByUserId(Guid userId);
 }

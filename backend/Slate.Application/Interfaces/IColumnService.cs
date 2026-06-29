@@ -10,5 +10,5 @@ public interface IColumnService
     
     Task Delete(Guid userId, Guid columnId);
     
-    Task<ColumnDto?> GetById(Guid userId, Guid columnId);
+    Task<ColumnDto> GetById(Guid userId, Guid columnId);
 }

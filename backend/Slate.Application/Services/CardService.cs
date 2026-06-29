@@ -2,6 +2,7 @@
 using Slate.Application.Interfaces;
 using Slate.Application.Mappers;
 using Slate.Domain.Enums;
+using Slate.Domain.Exceptions;
 using Slate.Domain.Repositories;
 
 namespace Slate.Application.Services;
@@ -17,11 +18,11 @@ public class CardService(
     {
         var column = await columnRepository.GetById(columnId);
         if (column is null)
-            throw new Exception("Column not found.");
+            throw new NotFoundException("Column not found.");
         
         var member = await boardMemberRepository.GetAsync(column.BoardId, userId);
         if (member is null || member.AccessLevel == AccessLevel.Viewer)
-            throw new Exception("You do not have permission to modify this board.");
+            throw new UnauthorizedException("You do not have permission to modify this board.");
         
         var card = column.AddCard(title);
         
@@ -33,11 +34,12 @@ public class CardService(
     public async Task Update(Guid userId, Guid cardId, string newTitle, string newDescription, Guid newColumnId, int newPosition)
     {
         var card = await cardRepository.GetById(cardId);
-        if (card is null) throw new Exception("Card not found.");
+        if (card is null)
+            throw new NotFoundException("Card not found.");
         
         var member = await boardMemberRepository.GetAsync(card.BoardId, userId);
         if (member is null || member.AccessLevel == AccessLevel.Viewer)
-            throw new Exception("You do not have permission to modify this board.");
+            throw new UnauthorizedException("You do not have permission to modify this board.");
         
         card.SetTitle(newTitle);
         card.SetDescription(newDescription);
@@ -52,10 +54,10 @@ public class CardService(
         {
             var targetColumn = await columnRepository.GetById(newColumnId);
             if (targetColumn is null)
-                throw new Exception("Target column not found.");
+                throw new NotFoundException("Target column not found.");
             
             if (targetColumn.BoardId != card.BoardId)
-                throw new Exception("Target column belongs to a different board.");
+                throw new ConflictException("Target column belongs to a different board.");
             
             column.RemoveCard(card);
             targetColumn.InsertCard(card, newPosition);
@@ -67,26 +69,27 @@ public class CardService(
     public async Task Delete(Guid userId, Guid cardId)
     {
         var card = await cardRepository.GetById(cardId);
-        if (card is null) throw new Exception("Card not found.");
+        if (card is null)
+            throw new NotFoundException("Card not found.");
         
         var member = await boardMemberRepository.GetAsync(card.BoardId, userId);
         if (member is null || member.AccessLevel == AccessLevel.Viewer)
-            throw new Exception("You do not have permission to modify this board.");
+            throw new UnauthorizedException("You do not have permission to modify this board.");
         
         card.Column.RemoveCard(card);
         
         await columnRepository.SaveChangesAsync();
     }
 
-    public async Task<CardDto?> GetById(Guid userId, Guid cardId)
+    public async Task<CardDto> GetById(Guid userId, Guid cardId)
     {
         var card = await cardRepository.GetById(cardId);
         if (card is null)
-            throw new Exception("Card not found.");
+            throw new NotFoundException("Card not found.");
         
         var hasReadAccess = await boardRepository.UserHasReadAccess(card.BoardId, userId);
         if (!hasReadAccess)
-            throw new Exception("You do not have permission to view this card.");
+            throw new UnauthorizedException("You do not have permission to view this card.");
 
         return card.ToDto();
     }

@@ -1,6 +1,7 @@
 ﻿using Slate.Application.Dto.Response;
 using Slate.Application.Interfaces;
 using Slate.Application.Mappers;
+using Slate.Domain.Exceptions;
 using Slate.Domain.Repositories;
 
 namespace Slate.Application.Services;
@@ -14,10 +15,10 @@ public class ColumnService(
     {
         var board = await boardRepository.GetById(boardId);
         if (board is null)
-            throw new Exception("Board not found.");
+            throw new NotFoundException("Board not found.");
 
         if (!board.UserHasWriteAccess(userId))
-            throw new Exception("You do not have permission to modify this board.");
+            throw new UnauthorizedException("You do not have permission to modify this board.");
 
         var column = board.AddColumn(title);
 
@@ -30,10 +31,10 @@ public class ColumnService(
     {
         var column = await columnRepository.GetByIdWithBoard(columnId);
         if (column is null)
-            throw new Exception("Column not found.");
+            throw new NotFoundException("Column not found.");
         
         if (!column.Board.UserHasWriteAccess(userId))
-            throw new Exception("You do not have permission to modify this column.");
+            throw new UnauthorizedException("You do not have permission to modify this column.");
         
         column.SetTitle(newTitle);
         
@@ -46,24 +47,24 @@ public class ColumnService(
     {
         var column = await columnRepository.GetByIdWithBoard(columnId);
         if (column is null)
-            throw new Exception("Column not found.");
+            throw new NotFoundException("Column not found.");
         
         if (!column.Board.UserHasWriteAccess(userId))
-            throw new Exception("You do not have permission to delete this column.");
+            throw new UnauthorizedException("You do not have permission to delete this column.");
         
         column.Board.RemoveColumn(columnId);
         
         await boardRepository.SaveChangesAsync();
     }
 
-    public async Task<ColumnDto?> GetById(Guid userId, Guid columnId)
+    public async Task<ColumnDto> GetById(Guid userId, Guid columnId)
     {
         var column = await columnRepository.GetByIdWithBoard(columnId);
         if (column is null)
-            throw new Exception("Column not found.");
+            throw new NotFoundException("Column not found.");
         
         if (!column.Board.UserHasReadAccess(userId))
-            throw new Exception("You do not have permission to view this column.");
+            throw new UnauthorizedException("You do not have permission to view this column.");
 
         return column.ToDto();
     }
