@@ -34,7 +34,7 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         if (member is null)
             throw new NotFoundException("Member user not found.");
         
-        board.AddMember(member.Id, AccessLevel.Member);
+        board.AddMember(member.Id, AccessLevel.Viewer);
 
         await boardRepository.SaveChangesAsync();
     }
