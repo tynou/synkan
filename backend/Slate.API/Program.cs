@@ -4,7 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Saunter;
+using Saunter.AsyncApiSchema.v2;
 using Slate.API.Handlers;
+using Slate.API.Hubs;
 using Slate.API.Middleware;
 using Slate.Application.Common;
 using Slate.Application.Interfaces;
@@ -43,6 +46,8 @@ public static class Program
     {
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+
+        services.AddSignalR();
         
         services.AddCors();
         services.AddControllers();
@@ -55,6 +60,18 @@ public static class Program
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
         services.AddSwagger();
+        
+        services.AddAsyncApiSchemaGeneration(options =>
+        {
+            options.AssemblyMarkerTypes = [typeof(Program)];
+            options.AsyncApi = new AsyncApiDocument
+            {
+                Info = new Info("Slate AsyncAPI", "1.0.0")
+                {
+                    Description = "Документация асинхронных событий SignalR"
+                }
+            };
+        });
         
         services.AddRouting(options => options.LowercaseUrls = true);
     }
@@ -128,11 +145,6 @@ public static class Program
 
     private static void AddAuth(this IServiceCollection services)
     {
-        services.AddOptions<JwtOptions>()
-            .BindConfiguration(JwtOptions.SectionName)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-        
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer();
@@ -200,6 +212,11 @@ public static class Program
         app.UseMiddleware<RateLimiterMiddleware>();
         
         app.MapControllers();
+
+        app.MapHub<BoardHub>("/hubs/board");
+
+        app.MapAsyncApiDocuments();
+        app.MapAsyncApiUi();
         
         app.UseSwagger();
         app.UseSwaggerUI();
