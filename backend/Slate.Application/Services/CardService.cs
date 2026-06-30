@@ -1,4 +1,7 @@
-﻿using Slate.Application.Dto.Response;
+﻿using Microsoft.AspNetCore.SignalR;
+using Slate.Application.Dto.Response;
+using Slate.Application.Events;
+using Slate.Application.Hubs;
 using Slate.Application.Interfaces;
 using Slate.Application.Mappers;
 using Slate.Domain.Enums;
@@ -11,7 +14,8 @@ public class CardService(
     IBoardRepository boardRepository,
     IColumnRepository columnRepository,
     ICardRepository cardRepository,
-    IBoardMemberRepository boardMemberRepository
+    IBoardMemberRepository boardMemberRepository,
+    IHubContext<BoardHub, IBoardClient> hubContext
     ) : ICardService
 {
     public async Task<Guid> Create(Guid userId, Guid columnId, string title)
@@ -27,6 +31,10 @@ public class CardService(
         var card = column.AddCard(title);
         
         await columnRepository.SaveChangesAsync();
+
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardCreated(card.ToDto());
 
         return card.Id;
     }
@@ -64,6 +72,10 @@ public class CardService(
         }
         
         await boardRepository.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardMoved(new CardMovedEvent(cardId, newColumnId, newPosition));
     }
 
     public async Task Delete(Guid userId, Guid cardId)

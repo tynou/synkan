@@ -7,9 +7,9 @@ using Microsoft.OpenApi;
 using Saunter;
 using Saunter.AsyncApiSchema.v2;
 using Slate.API.Handlers;
-using Slate.API.Hubs;
 using Slate.API.Middleware;
 using Slate.Application.Common;
+using Slate.Application.Hubs;
 using Slate.Application.Interfaces;
 using Slate.Application.Services;
 using Slate.Domain.Repositories;
@@ -49,6 +49,11 @@ public static class Program
 
         services.AddSignalR();
         
+        // TODO: SignalR Redis Backplane
+        // services.AddSignalR().AddStackExchangeRedis(redisConnString, options => {
+        //     options.Configuration.ChannelPrefix = "SlateShare";
+        // });
+        
         services.AddCors();
         services.AddControllers();
         services.AddServices();
@@ -82,7 +87,15 @@ public static class Program
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                policy.WithOrigins("http://localhost:3000")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+                
+                // policy.AllowAnyOrigin()
+                //     .AllowAnyHeader()
+                //     .AllowAnyMethod()
+                //     .AllowCredentials();
             });
         });
     }

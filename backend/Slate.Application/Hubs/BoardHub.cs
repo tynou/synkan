@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.SignalR;
 using Saunter.Attributes;
 using Slate.Application.Interfaces;
 
-namespace Slate.API.Hubs;
+namespace Slate.Application.Hubs;
 
 [AsyncApi]
 [Authorize]
