@@ -13,6 +13,7 @@ using Slate.Domain.Repositories;
 using Slate.Infrastructure.Persistence;
 using Slate.Infrastructure.Persistence.Repositories;
 using StackExchange.Redis;
+using SecuritySchemeType = Microsoft.OpenApi.SecuritySchemeType;
 
 namespace Slate.API;
 
@@ -49,6 +50,7 @@ public static class Program
         services.AddRepositories();
         services.AddPostgres(configuration);
         services.AddRedis(configuration);
+        services.AddOptions();
         services.AddAuth();
         services.AddHttpContextAccessor();
         services.AddEndpointsApiExplorer();
@@ -73,6 +75,7 @@ public static class Program
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IAuthCookieService, AuthCookieService>();
         services.AddScoped<IIdentityService, IdentityService>();
         services.AddScoped<IBoardService, BoardService>();
         services.AddScoped<IColumnService, ColumnService>();
@@ -110,6 +113,19 @@ public static class Program
         });
     }
 
+    private static void AddOptions(this IServiceCollection services)
+    {
+        services.AddOptions<JwtOptions>()
+            .BindConfiguration(JwtOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddOptions<AuthCookieOptions>()
+            .BindConfiguration(AuthCookieOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+    }
+
     private static void AddAuth(this IServiceCollection services)
     {
         services.AddOptions<JwtOptions>()
@@ -122,9 +138,10 @@ public static class Program
             .AddJwtBearer();
 
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
-            .Configure<IOptions<JwtOptions>>((options, jwtOptionsAccessor) =>
+            .Configure<IOptions<JwtOptions>, IOptions<AuthCookieOptions>>((options, jwtOptionsAccessor, authCookieOptionsAccessor) =>
             {
                 var jwtOptions = jwtOptionsAccessor.Value;
+                var authCookieOptions = authCookieOptionsAccessor.Value;
 
                 options.MapInboundClaims = false;
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -145,9 +162,8 @@ public static class Program
                     {
                         if (!string.IsNullOrEmpty(context.Token))
                             return Task.CompletedTask;
-                        // TODO: figure out later
-                        // if (context.Request.Cookies.TryGetValue(authCookieOptions.Name, out var token))
-                        //     context.Token = token;
+                        if (context.Request.Cookies.TryGetValue(authCookieOptions.Name, out var token))
+                            context.Token = token;
                         return Task.CompletedTask;
                     }
                 };

@@ -8,12 +8,13 @@ namespace Slate.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IIdentityService identityService, ICurrentUserService currentUser) : ControllerBase
+public class AuthController(IIdentityService identityService, ICurrentUserService currentUser, IAuthCookieService authCookieService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<ActionResult<AuthResponse>> Register([FromBody] RegisterRequest request)
     {
         var token = await identityService.Register(request.Username, request.Password);
+        authCookieService.SetAuthCookie(Response, token);
         return Ok(new AuthResponse(token));
     }
 
@@ -21,6 +22,7 @@ public class AuthController(IIdentityService identityService, ICurrentUserServic
     public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)
     {
         var token = await identityService.Login(request.Username, request.Password);
+        authCookieService.SetAuthCookie(Response, token);
         return Ok(new AuthResponse(token));
     }
 
