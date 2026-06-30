@@ -63,7 +63,7 @@ public static class Program
         
         services.AddAsyncApiSchemaGeneration(options =>
         {
-            options.AssemblyMarkerTypes = [typeof(Program)];
+            options.AssemblyMarkerTypes = [typeof(Program), typeof(IBoardClient)];
             options.AsyncApi = new AsyncApiDocument
             {
                 Info = new Info("Slate AsyncAPI", "1.0.0")
