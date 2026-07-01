@@ -6,7 +6,9 @@ public interface ICardService
 {
     Task<Guid> Create(Guid userId, Guid columnId, string title);
     
-    Task Update(Guid userId, Guid cardId, string newTitle, string newDescription, Guid newColumnId, int newPosition);
+    Task UpdateContent(Guid userId, Guid cardId, string newTitle, string newDescription);
+    
+    Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition);
     
     Task Delete(Guid userId, Guid cardId);
     

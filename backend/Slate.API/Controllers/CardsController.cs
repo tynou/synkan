@@ -11,10 +11,10 @@ namespace Slate.API.Controllers;
 [Route("api/[controller]")]
 public class CardsController(ICardService cardService, ICurrentUserService currentUser) : ControllerBase
 {
-    [HttpGet("{cardId:guid}")]
-    public async Task<ActionResult<CardDto>> Get(Guid cardId)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<CardDto>> Get(Guid id)
     {
-        var result = await cardService.GetById(currentUser.UserId, cardId);
+        var result = await cardService.GetById(currentUser.UserId, id);
         return Ok(result);
     }
     
@@ -25,24 +25,24 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
         return Ok(new CreationResponse(result));
     }
     
-    [HttpPut("{cardId:guid}")]
-    public async Task<ActionResult> Update(Guid cardId, [FromBody] UpdateCardRequest request)
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult> UpdateContent(Guid id, [FromBody] UpdateCardContentRequest request)
     {
-        await cardService.Update(
-            currentUser.UserId,
-            cardId,
-            request.Title,
-            request.Description,
-            request.ColumnId,
-            request.Position
-        );
+        await cardService.UpdateContent(currentUser.UserId, id, request.Title, request.Description);
         return Ok();
     }
     
-    [HttpDelete("{cardId:guid}")]
-    public async Task<ActionResult> Delete(Guid cardId)
+    [HttpPost("{id:guid}/move")]
+    public async Task<ActionResult> Move(Guid id, [FromBody] MoveCardRequest request)
     {
-        await cardService.Delete(currentUser.UserId, cardId);
+        await cardService.Move(currentUser.UserId, id, request.NewColumnId, request.NewPosition);
+        return Ok();
+    }
+    
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        await cardService.Delete(currentUser.UserId, id);
         return NoContent();
     }
 }

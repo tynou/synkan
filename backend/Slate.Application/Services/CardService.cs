@@ -39,7 +39,7 @@ public class CardService(
         return card.Id;
     }
 
-    public async Task Update(Guid userId, Guid cardId, string newTitle, string newDescription, Guid newColumnId, int newPosition)
+    public async Task UpdateContent(Guid userId, Guid cardId, string newTitle, string newDescription)
     {
         var card = await cardRepository.GetById(cardId);
         if (card is null)
@@ -51,6 +51,23 @@ public class CardService(
         
         card.SetTitle(newTitle);
         card.SetDescription(newDescription);
+        
+        await boardRepository.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardContentUpdated(new CardContentUpdatedEvent(cardId, newTitle, newDescription));
+    }
+    
+    public async Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition)
+    {
+        var card = await cardRepository.GetById(cardId);
+        if (card is null)
+            throw new NotFoundException("Card not found.");
+        
+        var member = await boardMemberRepository.GetAsync(card.BoardId, userId);
+        if (member is null || member.AccessLevel == AccessLevel.Viewer)
+            throw new UnauthorizedException("You do not have permission to modify this board.");
         
         var column = card.Column; 
         
@@ -89,6 +106,10 @@ public class CardService(
             throw new UnauthorizedException("You do not have permission to modify this board.");
         
         card.Column.RemoveCard(card);
+
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardDeleted(new CardDeletedEvent(cardId));
         
         await columnRepository.SaveChangesAsync();
     }
