@@ -1,4 +1,7 @@
-﻿using Slate.Application.Dto.Response;
+﻿using Microsoft.AspNetCore.SignalR;
+using Slate.Application.Dto.Response;
+using Slate.Application.Events;
+using Slate.Application.Hubs;
 using Slate.Application.Interfaces;
 using Slate.Application.Mappers;
 using Slate.Domain.Entities;
@@ -8,7 +11,11 @@ using Slate.Domain.Repositories;
 
 namespace Slate.Application.Services;
 
-public class BoardService(IBoardRepository boardRepository, IUserRepository userRepository) : IBoardService
+public class BoardService(
+    IBoardRepository boardRepository,
+    IUserRepository userRepository,
+    IHubContext<BoardHub, IBoardClient> hubContext
+    ) : IBoardService
 {
     public async Task<Guid> Create(Guid userId, bool isPublic, string title)
     {
@@ -67,7 +74,25 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
         await boardRepository.SaveChangesAsync();
     }
 
-    public async Task Update(Guid userId, Guid boardId, bool newIsPublic, string newTitle)
+    public async Task UpdateTitle(Guid userId, Guid boardId, string newTitle)
+    {
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new NotFoundException("Board not found.");
+
+        if (!board.UserHasWriteAccess(userId))
+            throw new UnauthorizedException("You do not have permission to modify this board.");
+        
+        board.SetTitle(newTitle);
+        
+        await boardRepository.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnBoardTitleUpdated(new BoardTitleUpdatedEvent(boardId, newTitle));
+    }
+    
+    public async Task ChangeVisibility(Guid userId, Guid boardId, bool newIsPublic)
     {
         var board = await boardRepository.GetById(boardId);
         if (board is null)
@@ -77,9 +102,12 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
             throw new UnauthorizedException("You do not have permission to modify this board.");
         
         board.SetVisibility(newIsPublic);
-        board.SetTitle(newTitle);
         
         await boardRepository.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnBoardVisibilityChanged(new BoardVisibilityChangedEvent(boardId, newIsPublic));
     }
 
     public async Task Delete(Guid userId, Guid boardId)
@@ -92,6 +120,10 @@ public class BoardService(IBoardRepository boardRepository, IUserRepository user
             throw new UnauthorizedException("You do not have permission to delete this board.");
 
         await boardRepository.Delete(boardId);
+        
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnBoardDeleted(new BoardDeletedEvent(boardId));
     }
 
     public async Task<BoardDto> GetById(Guid userId, Guid boardId)

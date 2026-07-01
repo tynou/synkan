@@ -11,10 +11,10 @@ namespace Slate.API.Controllers;
 [Route("api/[controller]")]
 public class BoardsController(IBoardService boardService, ICurrentUserService currentUser) : ControllerBase
 {
-    [HttpGet("{boardId:guid}")]
-    public async Task<ActionResult<BoardDto>> Get(Guid boardId)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<BoardDto>> Get(Guid id)
     {
-        var result = await boardService.GetById(currentUser.UserId, boardId);
+        var result = await boardService.GetById(currentUser.UserId, id);
         return Ok(result);
     }
     
@@ -25,10 +25,10 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
         return Ok(new CreationResponse(result));
     }
 
-    [HttpPost("{boardId:guid}/members")]
-    public async Task<ActionResult> AddMember(Guid boardId, [FromBody] AddBoardMemberRequest request)
+    [HttpPost("{id:guid}/members")]
+    public async Task<ActionResult> AddMember(Guid id, [FromBody] AddBoardMemberRequest request)
     {
-        await boardService.AddMember(currentUser.UserId, boardId, request.MemberId);
+        await boardService.AddMember(currentUser.UserId, id, request.MemberId);
         return Ok();
     }
     
@@ -46,17 +46,24 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
         return Ok();
     }
     
-    [HttpPut("{boardId:guid}")]
-    public async Task<ActionResult> Update(Guid boardId, [FromBody] UpdateBoardRequest request)
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult> UpdateTitle(Guid id, [FromBody] UpdateBoardTitleRequest request)
     {
-        await boardService.Update(currentUser.UserId, boardId, request.newIsPublic, request.NewTitle);
+        await boardService.UpdateTitle(currentUser.UserId, id, request.Title);
         return Ok();
     }
     
-    [HttpDelete("{boardId:guid}")]
-    public async Task<ActionResult> Delete(Guid boardId)
+    [HttpPost("{id:guid}/visibility")]
+    public async Task<ActionResult> ChangeVisibility(Guid id, [FromBody] ChangeBoardVisibilityRequest request)
     {
-        await boardService.Delete(currentUser.UserId, boardId);
+        await boardService.ChangeVisibility(currentUser.UserId, id, request.NewIsPublic);
+        return Ok();
+    }
+    
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        await boardService.Delete(currentUser.UserId, id);
         return NoContent();
     }
 

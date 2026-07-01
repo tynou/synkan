@@ -13,7 +13,9 @@ public interface IBoardService
     
     Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel);
     
-    Task Update(Guid userId, Guid boardId, bool newIsPublic, string newTitle);
+    Task UpdateTitle(Guid userId, Guid boardId, string newTitle);
+
+    Task ChangeVisibility(Guid userId, Guid boardId, bool newIsPublic);
     
     Task Delete(Guid userId, Guid boardId);
     
