@@ -11,10 +11,10 @@ namespace Slate.API.Controllers;
 [Route("api/[controller]")]
 public class ColumnsController(IColumnService columnService, ICurrentUserService currentUser) : ControllerBase
 {
-    [HttpGet("{columnId:guid}")]
-    public async Task<ActionResult<ColumnDto>> Get(Guid columnId)
+    [HttpGet("{id:guid}")]
+    public async Task<ActionResult<ColumnDto>> Get(Guid id)
     {
-        var result = await columnService.GetById(currentUser.UserId, columnId);
+        var result = await columnService.GetById(currentUser.UserId, id);
         return Ok(result);
     }
     
@@ -25,17 +25,24 @@ public class ColumnsController(IColumnService columnService, ICurrentUserService
         return Ok(new CreationResponse(result));
     }
     
-    [HttpPut("{columnId:guid}")]
-    public async Task<ActionResult> Update(Guid columnId, [FromBody] UpdateColumnRequest request)
+    [HttpPatch("{id:guid}")]
+    public async Task<ActionResult> UpdateTitle(Guid id, [FromBody] UpdateColumnTitleRequest request)
     {
-        await columnService.Update(currentUser.UserId, columnId, request.Title, request.Position);
+        await columnService.UpdateTitle(currentUser.UserId, id, request.Title);
+        return Ok();
+    }
+    
+    [HttpPost("{id:guid}/move")]
+    public async Task<ActionResult> Move(Guid id, [FromBody] MoveColumnRequest request)
+    {
+        await columnService.Move(currentUser.UserId, id, request.NewPosition);
         return Ok();
     }
 
-    [HttpDelete("{columnId:guid}")]
-    public async Task<ActionResult> Delete(Guid columnId)
+    [HttpDelete("{id:guid}")]
+    public async Task<ActionResult> Delete(Guid id)
     {
-        await columnService.Delete(currentUser.UserId, columnId);
+        await columnService.Delete(currentUser.UserId, id);
         return NoContent();
     }
 }
