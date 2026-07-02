@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -53,6 +54,19 @@ public static class Program
         // services.AddSignalR().AddStackExchangeRedis(redisConnString, options => {
         //     options.Configuration.ChannelPrefix = "SlateShare";
         // });
+
+        services.AddLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddJsonConsole(options =>
+            {
+                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+                options.JsonWriterOptions = new JsonWriterOptions
+                {
+                    Indented = false
+                };
+            });
+        });
         
         services.AddCors();
         services.AddControllers();
