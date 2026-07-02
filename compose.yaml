@@ -1,4 +1,22 @@
 ﻿services:
+  backend:
+    container_name: slate-backend
+    build:
+      context: ./backend/Slate.API
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTP_PORTS: 8080
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=slate;Username=postgres;Password=1234
+      ConnectionStrings__Redis: redis:6379
+    ports:
+      - "5234:8080"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - slate
+  
   postgres:
     image: postgres:18-alpine
     container_name: slate-postgres
