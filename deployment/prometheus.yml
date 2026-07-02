@@ -1,0 +1,11 @@
+﻿global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  external_labels:
+    monitor: "slate-monitor"
+
+scrape_configs:
+  - job_name: "backend"
+    metrics_path: "/metrics"
+    static_configs:
+      - targets: ["backend:8080"]

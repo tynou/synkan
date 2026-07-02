@@ -53,11 +53,70 @@
       - "5540:5540"
     networks:
       - slate
+  
+  prometheus:
+    image: prom/prometheus:v3
+    container_name: slate-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - slate
+  
+  loki:
+    image: grafana/loki:3.7.3
+    container_name: slate-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - slate
+  
+  alloy:
+    image: grafana/alloy:v1.17.1
+    container_name: slate-alloy
+    restart: unless-stopped
+    volumes:
+      - ./deployment/config.alloy:/etc/alloy/config.alloy:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - /etc/alloy/config.alloy
+    ports:
+      - "12345:12345"
+    networks:
+      - slate
+    depends_on:
+      - loki
+  
+  grafana:
+    image: grafana/grafana:13.1.0
+    container_name: slate-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    networks:
+      - slate
 
 volumes:
   postgres_data:
   redis_data:
   redis_insight_data:
+  prometheus_data:
+  loki_data:
+  grafana_data:
 
 networks:
   slate:
