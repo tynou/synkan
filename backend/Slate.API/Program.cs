@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using OpenTelemetry.Metrics;
 using Saunter;
 using Saunter.AsyncApiSchema.v2;
 using Slate.API.Handlers;
@@ -80,6 +81,8 @@ public static class Program
         services.AddEndpointsApiExplorer();
         services.AddSwagger();
         
+        services.AddOpenTelemetryMetrics();
+        
         services.AddAsyncApiSchemaGeneration(options =>
         {
             options.AssemblyMarkerTypes = [typeof(Program), typeof(IBoardClient)];
@@ -93,6 +96,17 @@ public static class Program
         });
         
         services.AddRouting(options => options.LowercaseUrls = true);
+    }
+
+    private static void AddOpenTelemetryMetrics(this IServiceCollection services)
+    {
+        services.AddOpenTelemetry()
+            .WithMetrics(metrics => metrics
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddRuntimeInstrumentation()
+                .AddProcessInstrumentation()
+                .AddPrometheusExporter()); 
     }
 
     private static void AddCors(this IServiceCollection services)
@@ -225,6 +239,8 @@ public static class Program
 
     private static void ConfigureApp(this WebApplication app)
     {
+        app.MapPrometheusScrapingEndpoint();
+        
         app.UseExceptionHandler();
         
         app.UseCors("AllowFrontend");
