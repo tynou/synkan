@@ -22,6 +22,8 @@ public class ColumnRepository(AppDbContext context) : IColumnRepository
     {
         return await context.Columns
             .Include(c => c.Cards.OrderBy(card => card.Position))
+                .ThenInclude(c => c.Checklists)
+                    .ThenInclude(cl => cl.Items.OrderBy(i => i.Position))
             .FirstOrDefaultAsync(b => b.Id == columnId);
     }
     
