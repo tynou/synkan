@@ -16,5 +16,10 @@ public class CardConfiguration : IEntityTypeConfiguration<Card>
 
         builder.Property(c => c.Description)
             .HasMaxLength(1000);
+        
+        builder.HasMany(c => c.Checklists)
+            .WithOne()
+            .HasForeignKey(cl => cl.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
