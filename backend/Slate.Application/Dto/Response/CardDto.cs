@@ -5,5 +5,7 @@ public record CardDto(
     Guid ColumnId,
     string Title,
     string Description,
-    int Position
+    int Position,
+    string? CoverColor,
+    IEnumerable<ChecklistDto> Checklists
 );

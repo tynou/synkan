@@ -47,7 +47,30 @@ public static class ModelToDtoMappers
             card.ColumnId,
             card.Title,
             card.Description,
-            card.Position
+            card.Position,
+            card.CoverColor,
+            card.Checklists.Select(c => c.ToDto())
+        );
+    }
+
+    public static ChecklistDto ToDto(this Checklist checklist)
+    {
+        return new ChecklistDto(
+            checklist.Id,
+            checklist.CardId,
+            checklist.Title,
+            checklist.Items.Select(i => i.ToDto())
+        );
+    }
+
+    public static ChecklistItemDto ToDto(this ChecklistItem item)
+    {
+        return new ChecklistItemDto(
+            item.Id,
+            item.ChecklistId,
+            item.Text,
+            item.IsCompleted,
+            item.Position
         );
     }
 
