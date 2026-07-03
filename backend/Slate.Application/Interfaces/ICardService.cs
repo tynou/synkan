@@ -8,6 +8,8 @@ public interface ICardService
     
     Task UpdateContent(Guid userId, Guid cardId, string newTitle, string newDescription);
     
+    Task UpdateCover(Guid userId, Guid cardId, string? color);
+    
     Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition);
     
     Task Delete(Guid userId, Guid cardId);
