@@ -10,6 +10,10 @@ public interface IBoardClient
     [SubscribeOperation(typeof(CardContentUpdatedEvent), Summary = "Событие обновления содержимого карточки")]
     Task OnCardContentUpdated(CardContentUpdatedEvent @event);
     
+    [Channel(nameof(OnCardCoverUpdated))]
+    [SubscribeOperation(typeof(CardCoverUpdatedEvent), Summary = "Событие обновления обложки карточки")]
+    Task OnCardCoverUpdated(CardCoverUpdatedEvent @event);
+    
     [Channel(nameof(OnCardMoved))]
     [SubscribeOperation(typeof(CardMovedEvent), Summary = "Событие перемещения карточки")]
     Task OnCardMoved(CardMovedEvent @event);
