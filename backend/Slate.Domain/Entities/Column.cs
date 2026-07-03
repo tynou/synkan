@@ -10,7 +10,7 @@ public class Column
     public Board Board { get; private set; }
 
     private readonly List<Card> _cards = [];
-    public IReadOnlyCollection<Card> Cards => _cards;
+    public IReadOnlyCollection<Card> Cards => _cards.AsReadOnly();
 
     private Column() { }
     

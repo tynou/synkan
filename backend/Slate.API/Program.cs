@@ -115,7 +115,7 @@ public static class Program
         {
             options.AddPolicy("AllowFrontend", policy =>
             {
-                policy.WithOrigins("http://localhost:3000")
+                policy.WithOrigins("http://localhost:3001")
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials();
@@ -138,6 +138,7 @@ public static class Program
         services.AddScoped<IBoardService, BoardService>();
         services.AddScoped<IColumnService, ColumnService>();
         services.AddScoped<ICardService, CardService>();
+        services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IUserService, UserService>();
     }
 
