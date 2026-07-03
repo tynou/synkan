@@ -14,6 +14,7 @@ namespace Slate.Application.Services;
 public class BoardService(
     IBoardRepository boardRepository,
     IUserRepository userRepository,
+    IBoardMemberRepository boardMemberRepository,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IBoardService
 {
@@ -30,31 +31,20 @@ public class BoardService(
 
     public async Task AddMember(Guid userId, Guid boardId, Guid memberId)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-
-        if (!board.UserHasWriteAccess(userId))
-            throw new UnauthorizedException("You do not have permission to add members to this board.");
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         
         var member = await userRepository.GetByIdAsync(memberId);
         if (member is null)
             throw new NotFoundException("Member user not found.");
         
-        board.AddMember(member.Id, AccessLevel.Viewer);
+        board.AddMember(memberId, AccessLevel.Viewer);
 
         await boardRepository.SaveChangesAsync();
     }
 
     public async Task RemoveMember(Guid userId, Guid boardId, Guid memberId)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-
-        if (!board.UserHasWriteAccess(userId))
-            throw new UnauthorizedException("You do not have permission to remove members from this board.");
-        
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.RemoveMember(memberId);
         
         await boardRepository.SaveChangesAsync();
@@ -62,13 +52,7 @@ public class BoardService(
 
     public async Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-
-        if (!board.UserHasWriteAccess(userId))
-            throw new UnauthorizedException("You do not have permission to change board member access levels.");
-        
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.SetMemberAccessLevel(memberId, newAccessLevel);
         
         await boardRepository.SaveChangesAsync();
@@ -76,13 +60,7 @@ public class BoardService(
 
     public async Task UpdateTitle(Guid userId, Guid boardId, string newTitle)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-
-        if (!board.UserHasWriteAccess(userId))
-            throw new UnauthorizedException("You do not have permission to modify this board.");
-        
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.SetTitle(newTitle);
         
         await boardRepository.SaveChangesAsync();
@@ -94,13 +72,7 @@ public class BoardService(
     
     public async Task ChangeVisibility(Guid userId, Guid boardId, bool newIsPublic)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-
-        if (!board.UserHasWriteAccess(userId))
-            throw new UnauthorizedException("You do not have permission to modify this board.");
-        
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.SetVisibility(newIsPublic);
         
         await boardRepository.SaveChangesAsync();
@@ -112,12 +84,7 @@ public class BoardService(
 
     public async Task Delete(Guid userId, Guid boardId)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-
-        if (!board.UserHasWriteAccess(userId))
-            throw new UnauthorizedException("You do not have permission to delete this board.");
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
 
         await boardRepository.Delete(boardId);
         
@@ -128,12 +95,7 @@ public class BoardService(
 
     public async Task<BoardDto> GetById(Guid userId, Guid boardId)
     {
-        var board = await boardRepository.GetById(boardId);
-        if (board is null)
-            throw new NotFoundException("Board not found.");
-        
-        if (!board.UserHasReadAccess(userId))
-            throw new UnauthorizedException("You do not have permission to read this board.");
+        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Viewer);
         
         return board.ToDto();
     }
@@ -142,5 +104,23 @@ public class BoardService(
     {
         var boards = await boardRepository.GetBoardsByUserId(userId);
         return boards.Select(b => b.ToLookupDto()).ToList();
+    }
+    
+    private async Task<Board> GetBoardAndVerifyAccess(Guid boardId, Guid userId, AccessLevel minRequiredLevel)
+    {
+        var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new NotFoundException("Board not found.");
+
+        await VerifyBoardAccess(boardId, userId, minRequiredLevel);
+        return board;
+    }
+
+    private async Task VerifyBoardAccess(Guid boardId, Guid userId, AccessLevel minRequiredLevel)
+    {
+        var member = await boardMemberRepository.GetAsync(boardId, userId);
+
+        if (member is null || member.AccessLevel < minRequiredLevel)
+            throw new UnauthorizedException("You do not have permission to access this board.");
     }
 }
