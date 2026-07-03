@@ -48,6 +48,18 @@ public class CardService(
             .OnCardContentUpdated(new CardContentUpdatedEvent(cardId, newTitle, newDescription));
     }
     
+    public async Task UpdateCover(Guid userId, Guid cardId, string? color)
+    {
+        var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
+        card.UpdateCoverColor(color);
+        
+        await boardRepository.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardCoverUpdated(new CardCoverUpdatedEvent(cardId, color));
+    }
+    
     public async Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition)
     {
         var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);

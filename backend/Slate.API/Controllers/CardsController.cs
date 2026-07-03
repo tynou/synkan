@@ -32,6 +32,13 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
         return Ok();
     }
     
+    [HttpPut("{id:guid}/cover")]
+    public async Task<ActionResult> UpdateContent(Guid id, [FromBody] UpdateCardCoverRequest request)
+    {
+        await cardService.UpdateCover(currentUser.UserId, id, request.Color);
+        return Ok();
+    }
+    
     [HttpPost("{id:guid}/move")]
     public async Task<ActionResult> Move(Guid id, [FromBody] MoveCardRequest request)
     {
