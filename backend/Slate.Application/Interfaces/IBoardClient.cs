@@ -55,4 +55,9 @@ public interface IBoardClient
     [Channel(nameof(OnBoardDeleted))]
     [SubscribeOperation(typeof(BoardDeletedEvent), Summary = "Событие удаления доски")]
     Task OnBoardDeleted(BoardDeletedEvent @event);
+    
+    
+    [Channel(nameof(OnMessageChunk))]
+    [SubscribeOperation(typeof(MessageChunkEvent), Summary = "Событие отправки куска сообщения")]
+    Task OnMessageChunk(MessageChunkEvent @event);
 }

@@ -140,6 +140,9 @@ public static class Program
         services.AddScoped<ICardService, CardService>();
         services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IUserService, UserService>();
+        
+        services.AddScoped<IAiService, TornadoAiService>();
+        services.AddScoped<IChatMessageService, ChatMessageService>();
     }
 
     private static void AddRepositories(this IServiceCollection services)
@@ -181,6 +184,11 @@ public static class Program
         
         services.AddOptions<AuthCookieOptions>()
             .BindConfiguration(AuthCookieOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddOptions<TornadoAiOptions>()
+            .BindConfiguration(TornadoAiOptions.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
     }
