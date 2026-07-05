@@ -9,10 +9,17 @@ public class ChatMessageService(
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IChatMessageService
 {
-    public async Task SendMessageChunkAsync(Guid boardId, string chunk)
+    public async Task SendMessageChunkAsync(Guid boardId, Guid messageId, string chunk)
     {
         await hubContext.Clients
             .Group(boardId.ToString())
-            .OnMessageChunk(new MessageChunkEvent(boardId, chunk));
+            .OnMessageChunk(new MessageChunkEvent(boardId, messageId, chunk));
+    }
+
+    public async Task SendMessageCompletedAsync(Guid boardId, Guid messageId)
+    {
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnMessageCompleted(new MessageCompletedEvent(boardId, messageId));
     }
 }

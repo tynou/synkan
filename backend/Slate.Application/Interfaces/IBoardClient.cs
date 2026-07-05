@@ -60,4 +60,8 @@ public interface IBoardClient
     [Channel(nameof(OnMessageChunk))]
     [SubscribeOperation(typeof(MessageChunkEvent), Summary = "Событие отправки куска сообщения")]
     Task OnMessageChunk(MessageChunkEvent @event);
+    
+    [Channel(nameof(OnMessageCompleted))]
+    [SubscribeOperation(typeof(MessageCompletedEvent), Summary = "Событие завершения сообщения")]
+    Task OnMessageCompleted(MessageCompletedEvent @event);
 }
