@@ -1,4 +1,5 @@
-﻿using Slate.Application.Dto.Response;
+﻿using Saunter.AsyncApiSchema.v2;
+using Slate.Application.Dto.Response;
 using Slate.Domain.Entities;
 
 namespace Slate.Application.Mappers;
@@ -85,5 +86,10 @@ public static class ModelToDtoMappers
     public static BoardMemberDto ToDto(this BoardMember boardMember)
     {
         return new BoardMemberDto(boardMember.UserId, boardMember.User.Username, boardMember.AccessLevel);
+    }
+
+    public static MessageDto ToDto(this ChatMessage message)
+    {
+        return new MessageDto(message.Id, message.Role, message.Content);
     }
 }
