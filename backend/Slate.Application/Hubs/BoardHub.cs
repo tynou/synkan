@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.SignalR;
 using Saunter.Attributes;
 using Slate.Application.Events;
 using Slate.Application.Interfaces;
+using Slate.Application.Services;
+using Slate.Domain.Entities;
+using Slate.Domain.Enums;
+using Slate.Domain.Repositories;
 
 namespace Slate.Application.Hubs;
 
@@ -10,7 +14,9 @@ namespace Slate.Application.Hubs;
 [Authorize]
 public class BoardHub(
     IAiService aiService,
-    IChatMessageService chatMessageService
+    IChatMessageService chatMessageService,
+    IChatMessageRepository chatMessageRepository,
+    TornadoPromptBuilder promptBuilder
     ) : Hub<IBoardClient>
 {
     [Channel(nameof(JoinBoard))]
@@ -32,7 +38,16 @@ public class BoardHub(
     [PublishOperation(typeof(SendMessageCommand), Summary = "Отправка сообщения в чат доски")]
     public async Task SendMessage(SendMessageCommand command)
     {
-        await aiService.ProcessMessageAsync(command.BoardId, command.Message);
+        var message = new ChatMessage(
+            Guid.NewGuid(),
+            command.BoardId,
+            ChatMessageRole.User,
+            command.Message
+        );
+        
+        await chatMessageRepository.AddAsync(message);
+        
+        await aiService.ProcessMessageAsync(message);
     }
     
     [Channel(nameof(CancelProcessing))]

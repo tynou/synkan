@@ -1,4 +1,5 @@
-﻿using LlmTornado;
+﻿using System.Text;
+using LlmTornado;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Models;
 using LlmTornado.ChatFunctions;
@@ -7,45 +8,90 @@ using LlmTornado.Common;
 using Microsoft.Extensions.Options;
 using Slate.Application.Common;
 using Slate.Application.Interfaces;
+using Slate.Domain.Enums;
+using Slate.Domain.Repositories;
+using ChatMessage = Slate.Domain.Entities.ChatMessage;
 
 namespace Slate.Application.Services;
 
 public class TornadoAiService(
     IOptions<TornadoAiOptions> options,
-    IChatMessageService chatMessageService
+    IChatMessageService chatMessageService,
+    IChatMessageRepository chatMessageRepository,
+    TornadoPromptBuilder promptBuilder
     ) : IAiService
 {
     private readonly double temperature = options.Value.Temperature;
     private readonly int maxTurns = options.Value.MaxTurns;
     
-    public async Task ProcessMessageAsync(Guid boardId, string userPrompt)
+    public async Task ProcessMessageAsync(ChatMessage message)
     {
-        // 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
         var api = new TornadoApi(
             LLmProviders.OpenRouter,
             "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"
             );
         
-        var conversation = api.Chat.CreateConversation(new ChatRequest
+        var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
-            Model = new ChatModel("nvidia/nemotron-3-ultra-550b-a55b:free", LLmProviders.OpenRouter),
+            Model = new ChatModel("poolside/laguna-m.1:free", LLmProviders.OpenRouter),
             Temperature = temperature,
-        });
+        }));
         
-        // conversation.AppendSystemMessage(
-        //     "You are an AI Project Manager for Slate, a collaborative Kanban board system. " +
-        //     "You can manage columns and cards using your tools. " +
-        //     "Respond in the same language as the user. Be concise."
-        //     );
+        var systemPrompt = await promptBuilder.CreateSystemInstructions();
+        conversation.PrependSystemMessage(systemPrompt);
+        conversation.AddUserMessage(message.Content);
 
-        conversation.AppendMessage(ChatMessageRoles.User, userPrompt);
+        var aiMessageId = Guid.NewGuid();
+        var result = await conversation.StreamResponseAsync(async tokens =>
+        {
+            await chatMessageService.SendMessageChunkAsync(message.BoardId, aiMessageId, tokens);
+        });
+
+        await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, message.BoardId, ChatMessageRole.Ai, result));
         
+        await chatMessageService.SendMessageCompletedAsync(message.BoardId, aiMessageId);
+    }
+}
+
+public sealed class LlmTornadoConversation(Conversation conversation)
+{
+    private readonly StringBuilder messageBuffer = new();
+
+    public void PrependSystemMessage(string instructions)
+    {
+        conversation.PrependSystemMessage(instructions);
+    }
+
+    // public void AddMessages(IEnumerable<TornadoChatMessage> messages)
+    // {
+    //     conversation.AddMessage(messages);
+    // }
+
+    public void AddUserMessage(string message)
+    {
+        conversation.AddUserMessage(message);
+    }
+
+    public async Task<string> StreamResponseAsync(Func<string, ValueTask> tokensHandler)
+    {
+        CleanBuffer();
         await conversation.StreamResponseRich(async tokens =>
             {
-                await chatMessageService.SendMessageChunkAsync(boardId, tokens);
+                messageBuffer.Append(tokens);
+                if (string.IsNullOrEmpty(tokens))
+                    return;
+                
+                await tokensHandler(tokens);
             },
-        null,
-        null);
-        
+            null,
+            null
+            );
+
+        return messageBuffer.ToString();
+    }
+
+    private void CleanBuffer()
+    {
+        messageBuffer.Clear();
     }
 }
