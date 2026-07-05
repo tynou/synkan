@@ -32,12 +32,12 @@ public static class Program
         var app = builder.Build();
         
         // TODO: switch to migrations
-        using (var scope = app.Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await dbContext.Database.EnsureDeletedAsync();
-            await dbContext.Database.EnsureCreatedAsync();
-        }
+        // using (var scope = app.Services.CreateScope())
+        // {
+        //     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        //     await dbContext.Database.EnsureDeletedAsync();
+        //     await dbContext.Database.EnsureCreatedAsync();
+        // }
 
         app.ConfigureApp();
 
@@ -143,6 +143,7 @@ public static class Program
         
         services.AddScoped<IAiService, TornadoAiService>();
         services.AddScoped<IChatMessageService, ChatMessageService>();
+        services.AddScoped<TornadoPromptBuilder>();
     }
 
     private static void AddRepositories(this IServiceCollection services)
@@ -152,6 +153,8 @@ public static class Program
         services.AddScoped<IColumnRepository, ColumnRepository>();
         services.AddScoped<ICardRepository, CardRepository>();
         services.AddScoped<IBoardMemberRepository, BoardMemberRepository>();
+        
+        services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
     }
     
     private static void AddSwagger(this IServiceCollection services)
