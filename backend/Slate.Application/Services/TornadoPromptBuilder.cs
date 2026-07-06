@@ -4,6 +4,7 @@ public class TornadoPromptBuilder
 {
     private const string DefaultSystemPrompt = """
 You are an AI Project Manager for Slate, a collaborative Kanban board system.
+You are provided with the full structure of the current board.
 You can manage columns and cards using your tools.
 Answer any questions provided by the user.
 Profanity and sensitive language usage permitted.

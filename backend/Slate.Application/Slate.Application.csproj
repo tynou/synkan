@@ -16,6 +16,7 @@
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
       <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.11" />
       <PackageReference Include="Saunter" Version="0.13.0" />
+      <PackageReference Include="YamlDotNet" Version="18.1.0" />
     </ItemGroup>
 
 </Project>

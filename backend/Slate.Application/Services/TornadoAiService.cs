@@ -10,6 +10,8 @@ using Slate.Application.Common;
 using Slate.Application.Interfaces;
 using Slate.Domain.Enums;
 using Slate.Domain.Repositories;
+using YamlDotNet.Serialization;
+using YamlDotNet.Serialization.NamingConventions;
 using ChatMessage = Slate.Domain.Entities.ChatMessage;
 
 namespace Slate.Application.Services;
@@ -18,6 +20,7 @@ public class TornadoAiService(
     IOptions<TornadoAiOptions> options,
     IChatMessageService chatMessageService,
     IChatMessageRepository chatMessageRepository,
+    IBoardRepository boardRepository,
     TornadoPromptBuilder promptBuilder
     ) : IAiService
 {
@@ -31,14 +34,24 @@ public class TornadoAiService(
             "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"
             );
         
+        // poolside/laguna-m.1:free
+        // nvidia/nemotron-3-ultra-550b-a55b:free
         var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
-            Model = new ChatModel("poolside/laguna-m.1:free", LLmProviders.OpenRouter),
+            Model = new ChatModel("openrouter/auto", LLmProviders.OpenRouter),
             Temperature = temperature,
         }));
         
         var systemPrompt = await promptBuilder.CreateSystemInstructions();
-        conversation.PrependSystemMessage(systemPrompt);
+        
+        var board = await boardRepository.GetById(message.BoardId);
+        var serializer = new SerializerBuilder()
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
+        var boardContext = serializer.Serialize(board);
+        
+        conversation.PrependSystemMessage($"{boardContext}\n\n{systemPrompt}");
+        
         conversation.AddUserMessage(message.Content);
 
         var aiMessageId = Guid.NewGuid();
