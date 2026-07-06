@@ -5,6 +5,7 @@ using LlmTornado.Chat.Models;
 using LlmTornado.ChatFunctions;
 using LlmTornado.Code;
 using LlmTornado.Common;
+using LlmTornado.Infra;
 using Microsoft.Extensions.Options;
 using Slate.Application.Common;
 using Slate.Application.Interfaces;
@@ -39,6 +40,24 @@ public class TornadoAiService(
         var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
             Model = new ChatModel("openrouter/auto", LLmProviders.OpenRouter),
+            Tools = [
+                new Tool(
+                    [
+                        new ToolParam(
+                            "columnId",
+                            "The Id of a column in which to create a card",
+                            ToolParamAtomicTypes.String
+                            ),
+                        new ToolParam(
+                            "title",
+                            "The title the created card should have",
+                            ToolParamAtomicTypes.String
+                        ),
+                    ],
+                    "CreateCard",
+                    "Create a new card"
+                    )
+            ],
             Temperature = temperature,
         }));
         
@@ -54,21 +73,37 @@ public class TornadoAiService(
         
         conversation.AddUserMessage(message.Content);
 
-        var aiMessageId = Guid.NewGuid();
-        var result = await conversation.StreamResponseAsync(async tokens =>
+        for (var i = 0; i < maxTurns; i++)
         {
-            await chatMessageService.SendMessageChunkAsync(message.BoardId, aiMessageId, tokens);
-        });
+            var aiMessageId = Guid.NewGuid();
+            var (response, callsCount) = await conversation.StreamResponseAsync(async tokens =>
+                {
+                    await chatMessageService.SendMessageChunkAsync(message.BoardId, aiMessageId, tokens);
+                },
+                async calls =>
+                {
+                    foreach (var call in calls)
+                    {
+                        Console.WriteLine($"calling a tool {call.Name}");
+                        call.Result = new FunctionResult(call, Guid.NewGuid().ToString(), true);
+                    }
+                });
 
-        await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, message.BoardId, ChatMessageRole.Ai, result));
+            if (!string.IsNullOrWhiteSpace(response))
+                await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, message.BoardId, ChatMessageRole.Ai, response));
         
-        await chatMessageService.SendMessageCompletedAsync(message.BoardId, aiMessageId);
+            await chatMessageService.SendMessageCompletedAsync(message.BoardId, aiMessageId);
+
+            if (callsCount == 0)
+                break;
+        }
     }
 }
 
 public sealed class LlmTornadoConversation(Conversation conversation)
 {
     private readonly StringBuilder messageBuffer = new();
+    private int currentToolCalls;
 
     public void PrependSystemMessage(string instructions)
     {
@@ -85,7 +120,10 @@ public sealed class LlmTornadoConversation(Conversation conversation)
         conversation.AddUserMessage(message);
     }
 
-    public async Task<string> StreamResponseAsync(Func<string, ValueTask> tokensHandler)
+    public async Task<(string response, int toolCalls)> StreamResponseAsync(
+        Func<string, ValueTask> tokensHandler,
+        Func<List<FunctionCall>, ValueTask> toolCallsHandler
+        )
     {
         CleanBuffer();
         await conversation.StreamResponseRich(async tokens =>
@@ -96,15 +134,20 @@ public sealed class LlmTornadoConversation(Conversation conversation)
                 
                 await tokensHandler(tokens);
             },
-            null,
+            async calls =>
+            {
+                currentToolCalls += calls.Count;
+                await toolCallsHandler(calls);
+            },
             null
             );
 
-        return messageBuffer.ToString();
+        return (messageBuffer.ToString(), currentToolCalls);
     }
 
     private void CleanBuffer()
     {
         messageBuffer.Clear();
+        currentToolCalls = 0;
     }
 }
