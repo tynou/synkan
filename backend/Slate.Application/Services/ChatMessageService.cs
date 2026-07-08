@@ -22,4 +22,25 @@ public class ChatMessageService(
             .Group(boardId.ToString())
             .OnMessageCompleted(new MessageCompletedEvent(boardId, messageId));
     }
+
+    public async Task SendProcessingFailedAsync(Guid boardId)
+    {
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnProcessingFailed(new ProcessingFailedEvent(boardId));
+    }
+
+    public async Task SendProcessingStartedAsync(Guid boardId)
+    {
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnProcessingStarted(new ProcessingStartedEvent(boardId));
+    }
+
+    public async Task SendProcessingCompletedAsync(Guid boardId)
+    {
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnProcessingCompleted(new ProcessingCompletedEvent(boardId));
+    }
 }

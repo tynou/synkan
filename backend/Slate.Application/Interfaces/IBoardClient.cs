@@ -64,4 +64,16 @@ public interface IBoardClient
     [Channel(nameof(OnMessageCompleted))]
     [SubscribeOperation(typeof(MessageCompletedEvent), Summary = "Событие завершения сообщения")]
     Task OnMessageCompleted(MessageCompletedEvent @event);
+    
+    [Channel(nameof(OnProcessingFailed))]
+    [SubscribeOperation(typeof(ProcessingFailedEvent), Summary = "Событие ошибки обработки сообщения")]
+    Task OnProcessingFailed(ProcessingFailedEvent @event);
+    
+    [Channel(nameof(OnProcessingStarted))]
+    [SubscribeOperation(typeof(ProcessingStartedEvent), Summary = "Событие начала обработки сообщения")]
+    Task OnProcessingStarted(ProcessingStartedEvent @event);
+    
+    [Channel(nameof(OnProcessingCompleted))]
+    [SubscribeOperation(typeof(ProcessingCompletedEvent), Summary = "Событие завершения обработки сообщения")]
+    Task OnProcessingCompleted(ProcessingCompletedEvent @event);
 }
