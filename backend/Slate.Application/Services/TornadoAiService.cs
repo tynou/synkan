@@ -9,6 +9,7 @@ using LlmTornado.Infra;
 using Microsoft.Extensions.Options;
 using Slate.Application.Common;
 using Slate.Application.Interfaces;
+using Slate.Application.Mappers;
 using Slate.Domain.Enums;
 using Slate.Domain.Repositories;
 using YamlDotNet.Serialization;
@@ -39,7 +40,7 @@ public class TornadoAiService(
         // nvidia/nemotron-3-ultra-550b-a55b:free
         var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
-            Model = new ChatModel("openrouter/auto", LLmProviders.OpenRouter),
+            Model = new ChatModel("poolside/laguna-m.1:free", LLmProviders.OpenRouter),
             Tools = [
                 new Tool(
                     [
@@ -64,12 +65,14 @@ public class TornadoAiService(
         var systemPrompt = await promptBuilder.CreateSystemInstructions();
         
         var board = await boardRepository.GetById(message.BoardId);
+        var boardContext = board.ToContext();
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
-        var boardContext = serializer.Serialize(board);
+        var boardContextYaml = serializer.Serialize(boardContext);
+        Console.WriteLine(boardContextYaml);
         
-        conversation.PrependSystemMessage($"{boardContext}\n\n{systemPrompt}");
+        conversation.PrependSystemMessage($"{boardContextYaml}\n\n{systemPrompt}");
         
         conversation.AddUserMessage(message.Content);
 
