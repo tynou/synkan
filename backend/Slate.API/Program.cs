@@ -145,6 +145,8 @@ public static class Program
         services.AddScoped<IChatMessageService, ChatMessageService>();
         services.AddScoped<TornadoPromptBuilder>();
         services.AddScoped<TornadoToolsService>();
+
+        services.AddSingleton<IProcessingOperationService, ProcessingOperationService>();
     }
 
     private static void AddRepositories(this IServiceCollection services)
