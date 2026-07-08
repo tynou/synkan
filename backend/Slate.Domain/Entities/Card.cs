@@ -71,10 +71,10 @@ public class Card
         _checklists.Remove(checklist);
     }
 
-    public void AddChecklistItem(Guid checklistId, string text)
+    public ChecklistItem AddChecklistItem(Guid checklistId, string text)
     {
         var checklist = _checklists.FirstOrDefault(cl => cl.Id == checklistId);
-        checklist?.AddItem(text);
+        return checklist?.AddItem(text);
     }
 
     public void RemoveChecklistItem(Guid checklistId, Guid itemId)

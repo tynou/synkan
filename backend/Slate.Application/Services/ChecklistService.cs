@@ -28,15 +28,17 @@ public class ChecklistService(
         return checklist.Id;
     }
 
-    public async Task CreateItem(Guid userId, Guid cardId, Guid checklistId, string text)
+    public async Task<Guid> CreateItem(Guid userId, Guid cardId, Guid checklistId, string text)
     {
         var card = await cardRepository.GetById(cardId);
         if (card is null)
             throw new NotFoundException("Card not found");
         
-        card.AddChecklistItem(checklistId, text);
+        var item = card.AddChecklistItem(checklistId, text);
         
         await cardRepository.SaveChangesAsync();
+
+        return item.Id;
     }
 
     public async Task ToggleItem(Guid userId, Guid cardId, Guid checklistId, Guid itemId, bool isCompleted)

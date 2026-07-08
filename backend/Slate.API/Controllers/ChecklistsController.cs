@@ -19,10 +19,10 @@ public class ChecklistsController(IChecklistService checklistService, ICurrentUs
     }
     
     [HttpPost("{checklistId:guid}/items")]
-    public async Task<ActionResult> CreateItem(Guid cardId, Guid checklistId, [FromBody] CreateChecklistItemRequest request)
+    public async Task<ActionResult<CreationResponse>> CreateItem(Guid cardId, Guid checklistId, [FromBody] CreateChecklistItemRequest request)
     {
-        await checklistService.CreateItem(currentUser.UserId, cardId, checklistId, request.Text);
-        return Ok();
+        var result = await checklistService.CreateItem(currentUser.UserId, cardId, checklistId, request.Text);
+        return Ok(new CreationResponse(result));
     }
 
     [HttpPut("{checklistId:guid}/items/{itemId:guid}")]

@@ -17,9 +17,11 @@ public class Checklist
         Title = title;
     }
 
-    public void AddItem(string text)
+    public ChecklistItem AddItem(string text)
     {
-        _items.Add(new ChecklistItem(Id, text, _items.Count));
+        var item = new ChecklistItem(Id, text, _items.Count);
+        _items.Add(item);
+        return item;
     }
 
     public void RemoveItem(Guid itemId)
