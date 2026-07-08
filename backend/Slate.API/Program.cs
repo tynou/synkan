@@ -144,6 +144,7 @@ public static class Program
         services.AddScoped<IAiService, TornadoAiService>();
         services.AddScoped<IChatMessageService, ChatMessageService>();
         services.AddScoped<TornadoPromptBuilder>();
+        services.AddScoped<TornadoToolsService>();
     }
 
     private static void AddRepositories(this IServiceCollection services)
