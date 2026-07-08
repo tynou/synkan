@@ -19,7 +19,22 @@ public class TornadoToolsService
 
     public TornadoToolsService(IAiToolsService toolsService)
     {
+        RegisterTool(toolsService.CreateColumn);
+        RegisterTool(toolsService.UpdateColumnTitle);
+        RegisterTool(toolsService.MoveColumn);
+        RegisterTool(toolsService.DeleteColumn);
+        
         RegisterTool(toolsService.CreateCard);
+        RegisterTool(toolsService.UpdateCardContent);
+        RegisterTool(toolsService.UpdateCardCover);
+        RegisterTool(toolsService.MoveCard);
+        RegisterTool(toolsService.DeleteCard);
+        
+        RegisterTool(toolsService.CreateChecklist);
+        RegisterTool(toolsService.DeleteChecklist);
+        RegisterTool(toolsService.CreateChecklistItem);
+        RegisterTool(toolsService.DeleteChecklistItem);
+        RegisterTool(toolsService.ToggleChecklistItem);
     }
     
     public async ValueTask HandleToolCalls(List<FunctionCall> calls)
