@@ -23,13 +23,14 @@ public class TornadoAiService(
     IChatMessageService chatMessageService,
     IChatMessageRepository chatMessageRepository,
     IBoardRepository boardRepository,
-    TornadoPromptBuilder promptBuilder
+    TornadoPromptBuilder promptBuilder,
+    TornadoToolsService toolsService
     ) : IAiService
 {
     private readonly double temperature = options.Value.Temperature;
     private readonly int maxTurns = options.Value.MaxTurns;
     
-    public async Task ProcessMessageAsync(ChatMessage message)
+    public async Task ProcessMessageAsync(Guid boardId, string content, CancellationToken ct)
     {
         var api = new TornadoApi(
             LLmProviders.OpenRouter,
@@ -38,64 +39,41 @@ public class TornadoAiService(
         
         // poolside/laguna-m.1:free
         // nvidia/nemotron-3-ultra-550b-a55b:free
+        // openrouter/auto
         var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
             Model = new ChatModel("poolside/laguna-m.1:free", LLmProviders.OpenRouter),
-            Tools = [
-                new Tool(
-                    [
-                        new ToolParam(
-                            "columnId",
-                            "The Id of a column in which to create a card",
-                            ToolParamAtomicTypes.String
-                            ),
-                        new ToolParam(
-                            "title",
-                            "The title the created card should have",
-                            ToolParamAtomicTypes.String
-                        ),
-                    ],
-                    "CreateCard",
-                    "Create a new card"
-                    )
-            ],
+            Tools = toolsService.Tools.ToList(),
             Temperature = temperature,
         }));
         
         var systemPrompt = await promptBuilder.CreateSystemInstructions();
         
-        var board = await boardRepository.GetById(message.BoardId);
+        var board = await boardRepository.GetById(boardId);
         var boardContext = board.ToContext();
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
         var boardContextYaml = serializer.Serialize(boardContext);
-        Console.WriteLine(boardContextYaml);
         
-        conversation.PrependSystemMessage($"{boardContextYaml}\n\n{systemPrompt}");
+        conversation.PrependSystemMessage($"Board structure:\n\n{boardContextYaml}\n\n{systemPrompt}");
         
-        conversation.AddUserMessage(message.Content);
+        conversation.AddUserMessage(content);
 
         for (var i = 0; i < maxTurns; i++)
         {
             var aiMessageId = Guid.NewGuid();
             var (response, callsCount) = await conversation.StreamResponseAsync(async tokens =>
                 {
-                    await chatMessageService.SendMessageChunkAsync(message.BoardId, aiMessageId, tokens);
+                    await chatMessageService.SendMessageChunkAsync(boardId, aiMessageId, tokens);
                 },
-                async calls =>
-                {
-                    foreach (var call in calls)
-                    {
-                        Console.WriteLine($"calling a tool {call.Name}");
-                        call.Result = new FunctionResult(call, Guid.NewGuid().ToString(), true);
-                    }
-                });
+                toolsService.HandleToolCalls,
+                ct);
 
             if (!string.IsNullOrWhiteSpace(response))
-                await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, message.BoardId, ChatMessageRole.Ai, response));
+                await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, boardId, ChatMessageRole.Ai, response));
         
-            await chatMessageService.SendMessageCompletedAsync(message.BoardId, aiMessageId);
+            await chatMessageService.SendMessageCompletedAsync(boardId, aiMessageId);
 
             if (callsCount == 0)
                 break;
@@ -125,7 +103,8 @@ public sealed class LlmTornadoConversation(Conversation conversation)
 
     public async Task<(string response, int toolCalls)> StreamResponseAsync(
         Func<string, ValueTask> tokensHandler,
-        Func<List<FunctionCall>, ValueTask> toolCallsHandler
+        Func<List<FunctionCall>, ValueTask> toolCallsHandler,
+        CancellationToken ct
         )
     {
         CleanBuffer();
@@ -142,7 +121,8 @@ public sealed class LlmTornadoConversation(Conversation conversation)
                 currentToolCalls += calls.Count;
                 await toolCallsHandler(calls);
             },
-            null
+            null,
+            token: ct
             );
 
         return (messageBuffer.ToString(), currentToolCalls);

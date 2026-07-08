@@ -1,5 +1,4 @@
-﻿using Saunter.AsyncApiSchema.v2;
-using Slate.Application.Dto.Response;
+﻿using Slate.Application.Dto.Response;
 using Slate.Domain.Entities;
 
 namespace Slate.Application.Mappers;

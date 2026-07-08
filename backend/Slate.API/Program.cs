@@ -141,8 +141,10 @@ public static class Program
         services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IUserService, UserService>();
         
-        services.AddScoped<IAiService, TornadoAiService>();
         services.AddScoped<IChatMessageService, ChatMessageService>();
+        
+        services.AddScoped<IAiService, TornadoAiService>();
+        services.AddScoped<IAiToolsService, AiToolsService>();
         services.AddScoped<TornadoPromptBuilder>();
         services.AddScoped<TornadoToolsService>();
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using Saunter.Attributes;
 using Slate.Application.Events;
 using Slate.Application.Interfaces;
@@ -16,7 +17,9 @@ public class BoardHub(
     IAiService aiService,
     IChatMessageService chatMessageService,
     IChatMessageRepository chatMessageRepository,
-    TornadoPromptBuilder promptBuilder
+    TornadoPromptBuilder promptBuilder,
+    IProcessingOperationService operationService,
+    ILogger<BoardHub> logger
     ) : Hub<IBoardClient>
 {
     [Channel(nameof(JoinBoard))]
@@ -38,22 +41,46 @@ public class BoardHub(
     [PublishOperation(typeof(SendMessageCommand), Summary = "Отправка сообщения в чат доски")]
     public async Task SendMessage(SendMessageCommand command)
     {
-        var message = new ChatMessage(
-            Guid.NewGuid(),
-            command.BoardId,
-            ChatMessageRole.User,
-            command.Message
-        );
+        var (operationId, ctSource) = operationService.BeginOperation(command.BoardId.ToString());
+        var ct = ctSource.Token;
+
+        try
+        {
+            await chatMessageService.SendProcessingStartedAsync(command.BoardId);
+            
+            var message = new ChatMessage(
+                Guid.NewGuid(),
+                command.BoardId,
+                ChatMessageRole.User,
+                command.Message
+            );
         
-        await chatMessageRepository.AddAsync(message);
+            await chatMessageRepository.AddAsync(message);
         
-        await aiService.ProcessMessageAsync(message);
+            await aiService.ProcessMessageAsync(command.BoardId, command.Message, ct);
+
+            await chatMessageService.SendProcessingCompletedAsync(command.BoardId);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            logger.LogInformation("Chat processing cancelled for board {BoardId}", command.BoardId);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Chat processing failed for board {BoardId}", command.BoardId);
+            await chatMessageService.SendProcessingFailedAsync(command.BoardId);
+        }
+        finally
+        {
+            operationService.CompleteOperation(command.BoardId.ToString(), operationId);
+        }
     }
     
     [Channel(nameof(CancelProcessing))]
-    [PublishOperation(typeof(void), Summary = "Отмена обработки сообщения")]
-    public Task CancelProcessing()
+    [PublishOperation(typeof(CancelProcessingCommand), Summary = "Отмена обработки сообщения")]
+    public Task CancelProcessing(CancelProcessingCommand command)
     {
+        operationService.CancelOperation(command.BoardId.ToString());
         return Task.CompletedTask;
     }
 }

@@ -4,5 +4,5 @@ namespace Slate.Application.Interfaces;
 
 public interface IAiService
 {
-    Task ProcessMessageAsync(ChatMessage message);
+    Task ProcessMessageAsync(Guid boardId, string content, CancellationToken ct);
 }
