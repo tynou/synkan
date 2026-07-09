@@ -2,7 +2,7 @@
   scrape_interval: 5s
   evaluation_interval: 5s
   external_labels:
-    monitor: "slate-monitor"
+    monitor: "synkan-monitor"
 
 scrape_configs:
   - job_name: "backend"

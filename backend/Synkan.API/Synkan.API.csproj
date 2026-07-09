@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Hangfire" Version="1.8.23" />
+        <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.2"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.2" />
+        <PackageReference Include="OpenTelemetry.Exporter.Prometheus.AspNetCore" Version="1.16.0-beta.1" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.16.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.16.0-beta.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
+        <PackageReference Include="Saunter" Version="0.13.0" />
+        <PackageReference Include="StackExchange.Redis" Version="3.0.7" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.2.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Synkan.Application\Synkan.Application.csproj" />
+      <ProjectReference Include="..\Synkan.Infrastructure\Synkan.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
+    </ItemGroup>
+
+</Project>

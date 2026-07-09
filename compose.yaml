@@ -1,13 +1,13 @@
 ﻿services:
   backend:
-    container_name: slate-backend
+    container_name: synkan-backend
     build:
-      context: ./backend/Slate.API
+      context: ./backend/Synkan.API
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
-      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=slate;Username=postgres;Password=1234
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=synkan;Username=postgres;Password=1234
       ConnectionStrings__Redis: redis:6379
     ports:
       - "5234:8080"
@@ -15,11 +15,11 @@
       - postgres
       - redis
     networks:
-      - slate
+      - synkan
   
   postgres:
     image: postgres:18-alpine
-    container_name: slate-postgres
+    container_name: synkan-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
@@ -30,33 +30,33 @@
     ports:
       - "5433:5432"
     networks:
-      - slate
+      - synkan
   
   redis:
     image: redis:8-alpine
-    container_name: slate-redis
+    container_name: synkan-redis
     restart: unless-stopped
     volumes:
       - redis_data:/data
     ports:
       - "6379:6379"
     networks:
-      - slate
+      - synkan
   
   redis-insight:
     image: redis/redisinsight:3.6
-    container_name: slate-redis-insight
+    container_name: synkan-redis-insight
     restart: unless-stopped
     volumes:
       - redis_insight_data:/data
     ports:
       - "5540:5540"
     networks:
-      - slate
+      - synkan
   
   prometheus:
     image: prom/prometheus:v3
-    container_name: slate-prometheus
+    container_name: synkan-prometheus
     restart: unless-stopped
     ports:
       - "9090:9090"
@@ -64,11 +64,11 @@
       - ./deployment/prometheus.yml:/etc/prometheus/prometheus.yml
       - prometheus_data:/prometheus
     networks:
-      - slate
+      - synkan
   
   loki:
     image: grafana/loki:3.7.3
-    container_name: slate-loki
+    container_name: synkan-loki
     restart: unless-stopped
     ports:
       - "3100:3100"
@@ -76,11 +76,11 @@
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
     networks:
-      - slate
+      - synkan
   
   alloy:
     image: grafana/alloy:v1.17.1
-    container_name: slate-alloy
+    container_name: synkan-alloy
     restart: unless-stopped
     volumes:
       - ./deployment/config.alloy:/etc/alloy/config.alloy:ro
@@ -92,13 +92,13 @@
     ports:
       - "12345:12345"
     networks:
-      - slate
+      - synkan
     depends_on:
       - loki
   
   grafana:
     image: grafana/grafana:13.1.0
-    container_name: slate-grafana
+    container_name: synkan-grafana
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -108,7 +108,7 @@
       GF_SECURITY_ADMIN_PASSWORD: admin
       GF_USERS_ALLOW_SIGN_UP: "false"
     networks:
-      - slate
+      - synkan
 
 volumes:
   postgres_data:
@@ -119,5 +119,5 @@ volumes:
   grafana_data:
 
 networks:
-  slate:
+  synkan:
     driver: bridge

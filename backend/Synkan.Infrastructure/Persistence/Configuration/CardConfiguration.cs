@@ -1,0 +1,28 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Synkan.Domain.Entities;
+
+namespace Synkan.Infrastructure.Persistence.Configuration;
+
+public class CardConfiguration : IEntityTypeConfiguration<Card>
+{
+    public void Configure(EntityTypeBuilder<Card> builder)
+    {
+        builder.HasKey(c => c.Id);
+        
+        builder.Property(c => c.Title)
+            .HasMaxLength(150)
+            .IsRequired();
+
+        builder.Property(c => c.Description)
+            .HasMaxLength(1000);
+        
+        builder.HasMany(c => c.Checklists)
+            .WithOne()
+            .HasForeignKey(cl => cl.CardId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.HasMany(c => c.Labels)
+            .WithMany();
+    }
+}
