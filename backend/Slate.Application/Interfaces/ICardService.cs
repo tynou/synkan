@@ -10,6 +10,14 @@ public interface ICardService
     
     Task UpdateCover(Guid userId, Guid cardId, string? color);
     
+    Task UpdateDueDate(Guid cardId, DateTimeOffset dueDate, DateTimeOffset reminderTime);
+    
+    Task RemoveDueDate(Guid cardId);
+    
+    Task AssignLabel(Guid cardId, Guid labelId);
+    
+    Task RemoveLabel(Guid cardId, Guid labelId);
+    
     Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition);
     
     Task Delete(Guid userId, Guid cardId);

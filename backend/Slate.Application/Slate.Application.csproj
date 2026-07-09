@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+      <PackageReference Include="Hangfire" Version="1.8.23" />
       <PackageReference Include="LlmTornado" Version="3.8.62" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
       <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.11" />

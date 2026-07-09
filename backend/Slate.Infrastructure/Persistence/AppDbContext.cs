@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Card> Cards { get; set; }
     public DbSet<Checklist> Checklists { get; set; }
     public DbSet<ChecklistItem> ChecklistItems { get; set; }
+    public DbSet<Label> Labels { get; set; }
     public DbSet<ChatMessage>  ChatMessages { get; set; }
     public DbSet<BoardMember> BoardMembers { get; set; }
     

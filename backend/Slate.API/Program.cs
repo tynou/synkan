@@ -1,5 +1,7 @@
 using System.Text;
 using System.Text.Json;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -73,6 +75,7 @@ public static class Program
         services.AddControllers();
         services.AddServices();
         services.AddRepositories();
+        services.AddHangfire(configuration);
         services.AddPostgres(configuration);
         services.AddRedis(configuration);
         services.AddOptions();
@@ -140,6 +143,8 @@ public static class Program
         services.AddScoped<ICardService, CardService>();
         services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IUserService, UserService>();
+
+        services.AddScoped<INotificationService, NotificationService>();
         
         services.AddScoped<IChatMessageService, ChatMessageService>();
         
@@ -157,6 +162,7 @@ public static class Program
         services.AddScoped<IBoardRepository, BoardRepository>();
         services.AddScoped<IColumnRepository, ColumnRepository>();
         services.AddScoped<ICardRepository, CardRepository>();
+        services.AddScoped<ILabelRepository, LabelRepository>();
         services.AddScoped<IBoardMemberRepository, BoardMemberRepository>();
         
         services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
@@ -240,6 +246,18 @@ public static class Program
             });
 
         services.AddAuthorization();
+    }
+
+    private static void AddHangfire(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("Postgres");
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(options => options.UseNpgsqlConnection(connectionString)));
+        
+        services.AddHangfireServer();
     }
     
     private static void AddPostgres(this IServiceCollection services, IConfiguration configuration)

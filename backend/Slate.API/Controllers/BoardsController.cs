@@ -9,7 +9,10 @@ namespace Slate.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class BoardsController(IBoardService boardService, ICurrentUserService currentUser) : ControllerBase
+public class BoardsController(
+    IBoardService boardService,
+    ICurrentUserService currentUser
+    ) : ControllerBase
 {
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<BoardDto>> Get(Guid id)
@@ -22,6 +25,13 @@ public class BoardsController(IBoardService boardService, ICurrentUserService cu
     public async Task<ActionResult<CreationResponse>> Create([FromBody] CreateBoardRequest request)
     {
         var result = await boardService.Create(currentUser.UserId, request.IsPublic, request.Title);
+        return Ok(new CreationResponse(result));
+    }
+    
+    [HttpPost("{id:guid}/labels")]
+    public async Task<ActionResult<CreationResponse>> CreateLabel(Guid id, [FromBody] CreateLabelRequest request)
+    {
+        var result = await boardService.CreateLabel(id, request.Name, request.Color);
         return Ok(new CreationResponse(result));
     }
 

@@ -7,5 +7,8 @@ public record CardDto(
     string Description,
     int Position,
     string? CoverColor,
-    IEnumerable<ChecklistDto> Checklists
+    DateTimeOffset? DueDate,
+    DateTimeOffset? ReminderDate,
+    IEnumerable<ChecklistDto> Checklists,
+    IEnumerable<LabelDto> Labels
 );

@@ -27,6 +27,10 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
                 .ThenInclude(c => c.Cards.OrderBy(card => card.Position))
                     .ThenInclude(c => c.Checklists)
                         .ThenInclude(cl => cl.Items.OrderBy(i => i.Position))
+            .Include(b => b.Columns.OrderBy(c => c.Position))
+                .ThenInclude(c => c.Cards.OrderBy(card => card.Position))
+                    .ThenInclude(c => c.Labels)
+            .Include(b => b.AvailableLabels)
             .FirstOrDefaultAsync(b => b.Id == boardId);
     }
 

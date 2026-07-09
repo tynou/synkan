@@ -15,9 +15,12 @@ public class BoardService(
     IBoardRepository boardRepository,
     IUserRepository userRepository,
     IBoardMemberRepository boardMemberRepository,
+    ICurrentUserService currentUser,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IBoardService
 {
+    private Guid UserId => currentUser.UserId;
+    
     public async Task<Guid> Create(Guid userId, bool isPublic, string title)
     {
         var user = await userRepository.GetByIdAsync(userId);
@@ -27,6 +30,17 @@ public class BoardService(
         var board = new Board(userId, isPublic, title);
         await boardRepository.Create(board);
         return board.Id;
+    }
+
+    public async Task<Guid> CreateLabel(Guid boardId, string name, string color)
+    {
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Member);
+        
+        var label = board.CreateLabel(name, color);
+
+        await boardRepository.SaveChangesAsync();
+
+        return label.Id;
     }
 
     public async Task AddMember(Guid userId, Guid boardId, Guid memberId)

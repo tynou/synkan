@@ -13,7 +13,8 @@ public static class ModelToDtoMappers
             board.IsPublic,
             board.Title,
             flat ? [] : board.Members.Select(u => u.ToDto()),
-            flat ? [] : board.Columns.Select(c => c.ToDto())
+            flat ? [] : board.Columns.Select(c => c.ToDto()),
+            board.AvailableLabels.Select(l => l.ToDto())
         );
     }
 
@@ -49,8 +50,16 @@ public static class ModelToDtoMappers
             card.Description,
             card.Position,
             card.CoverColor,
-            card.Checklists.Select(c => c.ToDto())
+            card.DueDate,
+            card.ReminderTime,
+            card.Checklists.Select(c => c.ToDto()),
+            card.Labels.Select(l => l.ToDto())
         );
+    }
+
+    public static LabelDto ToDto(this Label label)
+    {
+        return new LabelDto(label.Id, label.Name, label.Color);
     }
 
     public static ChecklistDto ToDto(this Checklist checklist)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Hangfire;
+using Microsoft.AspNetCore.SignalR;
 using Slate.Application.Dto.Response;
 using Slate.Application.Events;
 using Slate.Application.Hubs;
@@ -16,9 +17,13 @@ public class CardService(
     IColumnRepository columnRepository,
     ICardRepository cardRepository,
     IBoardMemberRepository boardMemberRepository,
+    ILabelRepository labelRepository,
+    ICurrentUserService currentUser,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : ICardService
 {
+    private Guid UserId => currentUser.UserId;
+    
     public async Task<Guid> Create(Guid userId, Guid columnId, string title)
     {
         var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
@@ -59,7 +64,66 @@ public class CardService(
             .Group(card.BoardId.ToString())
             .OnCardCoverUpdated(new CardCoverUpdatedEvent(cardId, color));
     }
-    
+
+    public async Task UpdateDueDate(Guid cardId, DateTimeOffset dueDate, DateTimeOffset reminderTime)
+    {
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
+        
+        if (!string.IsNullOrEmpty(card.ReminderJobId))
+            BackgroundJob.Delete(card.ReminderJobId);
+        
+        if (reminderTime < DateTimeOffset.UtcNow)
+            return;
+        
+        var newJobId = BackgroundJob.Schedule<INotificationService>(
+            service => service.SendDeadlineReminder(), 
+            reminderTime
+        );
+        
+        card.UpdateDeadline(dueDate, reminderTime, newJobId);
+        
+        await cardRepository.SaveChangesAsync();
+    }
+
+    public async Task RemoveDueDate(Guid cardId)
+    {
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
+
+        var b = false;
+        if (!string.IsNullOrEmpty(card.ReminderJobId))
+            b = BackgroundJob.Delete(card.ReminderJobId);
+        Console.WriteLine(b);
+        
+        card.RemoveDeadline();
+        await cardRepository.SaveChangesAsync();
+    }
+
+    public async Task AssignLabel(Guid cardId, Guid labelId)
+    {
+        var card = await cardRepository.GetById(cardId);
+        if (card is null)
+            throw new NotFoundException("Card not found");
+        
+        var label = await labelRepository.GetById(labelId);
+        if (label is null)
+            throw new NotFoundException("Label not found");
+        
+        card.AssignLabel(label);
+        
+        await cardRepository.SaveChangesAsync();
+    }
+
+    public async Task RemoveLabel(Guid cardId, Guid labelId)
+    {
+        var card = await cardRepository.GetById(cardId);
+        if (card is null)
+            throw new NotFoundException("Card not found");
+        
+        card.RemoveLabel(labelId);
+
+        await cardRepository.SaveChangesAsync();
+    }
+
     public async Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition)
     {
         var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);

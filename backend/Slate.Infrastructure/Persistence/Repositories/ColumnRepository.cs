@@ -24,6 +24,8 @@ public class ColumnRepository(AppDbContext context) : IColumnRepository
             .Include(c => c.Cards.OrderBy(card => card.Position))
                 .ThenInclude(c => c.Checklists)
                     .ThenInclude(cl => cl.Items.OrderBy(i => i.Position))
+            .Include(c => c.Cards.OrderBy(card => card.Position))
+                .ThenInclude(c => c.Labels)
             .Include(c => c.Board)
                 .ThenInclude(b => b.Columns)
             .FirstOrDefaultAsync(b => b.Id == columnId);

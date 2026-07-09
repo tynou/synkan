@@ -9,6 +9,10 @@ public class Card
     public string Description { get; private set; }
     public int Position { get; private set; }
     
+    public DateTimeOffset? DueDate { get; private set; }
+    public DateTimeOffset? ReminderTime { get; private set; }
+    public string? ReminderJobId { get; private set; }
+    
     public string? CoverColor { get; private set; }
 
     private readonly List<Checklist> _checklists = [];
@@ -29,6 +33,20 @@ public class Card
         Title = title;
         Description = string.Empty;
         Position = position;
+    }
+    
+    public void UpdateDeadline(DateTimeOffset dueDate, DateTimeOffset reminderTime, string newJobId)
+    {
+        DueDate = dueDate;
+        ReminderTime = reminderTime;
+        ReminderJobId = newJobId;
+    }
+
+    public void RemoveDeadline()
+    {
+        DueDate = null;
+        ReminderTime = null;
+        ReminderJobId = null;
     }
 
     public void MoveToColumn(Guid newColumnId)

@@ -39,6 +39,34 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
         return Ok();
     }
     
+    [HttpPut("{id:guid}/due")]
+    public async Task<ActionResult> UpdateDueDate(Guid id, [FromBody] UpdateCardDueDateRequest request)
+    {
+        await cardService.UpdateDueDate(id, request.DueDate, request.ReminderTime);
+        return Ok();
+    }
+    
+    [HttpDelete("{id:guid}/due")]
+    public async Task<ActionResult> RemoveDueDate(Guid id)
+    {
+        await cardService.RemoveDueDate(id);
+        return Ok();
+    }
+    
+    [HttpPost("{id:guid}/labels/{labelId:guid}")]
+    public async Task<ActionResult> AssignLabel(Guid id, Guid labelId)
+    {
+        await cardService.AssignLabel(id, labelId);
+        return Ok();
+    }
+    
+    [HttpDelete("{id:guid}/labels/{labelId:guid}")]
+    public async Task<ActionResult> RemoveLabel(Guid id, Guid labelId)
+    {
+        await cardService.RemoveLabel(id, labelId);
+        return Ok();
+    }
+    
     [HttpPost("{id:guid}/move")]
     public async Task<ActionResult> Move(Guid id, [FromBody] MoveCardRequest request)
     {

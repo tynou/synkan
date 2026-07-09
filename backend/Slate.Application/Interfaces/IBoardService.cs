@@ -6,6 +6,8 @@ namespace Slate.Application.Interfaces;
 public interface IBoardService
 {
     Task<Guid> Create(Guid userId, bool isPublic, string title);
+    
+    Task<Guid> CreateLabel(Guid boardId, string name, string color);
 
     Task AddMember(Guid userId, Guid boardId, Guid memberId);
     

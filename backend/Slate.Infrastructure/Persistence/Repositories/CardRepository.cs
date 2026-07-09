@@ -25,6 +25,7 @@ public class CardRepository(AppDbContext context) : ICardRepository
                 .ThenInclude(col => col.Cards.OrderBy(card => card.Position))
             .Include(c => c.Checklists)
                 .ThenInclude(cl => cl.Items.OrderBy(i => i.Position))
+            .Include(c => c.Labels)
             .FirstOrDefaultAsync(b => b.Id == cardId);
     }
 

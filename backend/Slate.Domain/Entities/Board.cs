@@ -15,6 +15,9 @@ public class Board
     private readonly List<Column> _columns = [];
     public IReadOnlyCollection<Column> Columns => _columns.AsReadOnly();
     
+    private readonly List<Label> _availableLabels = [];
+    public IReadOnlyCollection<Label> AvailableLabels => _availableLabels.AsReadOnly();
+    
     private Board() { }
     
     public Board(Guid ownerId, bool isPublic, string title)
@@ -50,6 +53,13 @@ public class Board
         var member = _members.FirstOrDefault(m => m.UserId == userId);
 
         member?.UpdateAccessLevel(accessLevel);
+    }
+
+    public Label CreateLabel(string name, string color)
+    {
+        var label = new Label(Id, name, color);
+        _availableLabels.Add(label);
+        return label;
     }
     
     public Column AddColumn(string title)
