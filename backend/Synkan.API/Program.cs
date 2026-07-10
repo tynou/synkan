@@ -293,6 +293,11 @@ public static class Program
 
         app.MapHub<BoardHub>("/hubs/board");
 
+        app.UseHangfireDashboard("/hangfire", new DashboardOptions
+        {
+            Authorization = [new HangfireDashboardAuthorizationFilter()]
+        });
+        
         app.MapAsyncApiDocuments();
         app.MapAsyncApiUi();
         
