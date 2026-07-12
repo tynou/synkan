@@ -20,6 +20,7 @@ using Synkan.Domain.Repositories;
 using Synkan.Infrastructure.Persistence;
 using Synkan.Infrastructure.Persistence.Repositories;
 using StackExchange.Redis;
+using Synkan.Infrastructure.Services;
 using SecuritySchemeType = Microsoft.OpenApi.SecuritySchemeType;
 
 namespace Synkan.API;
@@ -143,6 +144,7 @@ public static class Program
         services.AddScoped<ICardService, CardService>();
         services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IUnitOfWork, PostgresUnitOfWork>();
 
         services.AddScoped<INotificationService, NotificationService>();
         
