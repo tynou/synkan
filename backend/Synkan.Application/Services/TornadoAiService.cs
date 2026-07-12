@@ -3,14 +3,13 @@ using LlmTornado;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Models;
 using LlmTornado.ChatFunctions;
-using LlmTornado.Code;
-using LlmTornado.Common;
-using LlmTornado.Infra;
 using Microsoft.Extensions.Options;
 using Synkan.Application.Common;
 using Synkan.Application.Interfaces;
 using Synkan.Application.Mappers;
+using Synkan.Domain.Entities;
 using Synkan.Domain.Enums;
+using Synkan.Domain.Exceptions;
 using Synkan.Domain.Repositories;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -23,6 +22,7 @@ public class TornadoAiService(
     IChatMessageService chatMessageService,
     IChatMessageRepository chatMessageRepository,
     IBoardRepository boardRepository,
+    IUnitOfWork unitOfWork,
     TornadoPromptBuilder promptBuilder,
     TornadoToolsService toolsService
     ) : IAiService
@@ -30,7 +30,7 @@ public class TornadoAiService(
     private readonly double temperature = options.Value.Temperature;
     private readonly int maxTurns = options.Value.MaxTurns;
     
-    public async Task ProcessMessageAsync(Guid boardId, string content, CancellationToken ct)
+    public async Task ProcessMessageAsync(Guid boardId, string content, BoardAiSettings settings, CancellationToken ct)
     {
         // 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
         // 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
@@ -40,8 +40,8 @@ public class TornadoAiService(
         //     );
         
         var api = new TornadoApi(
-            LLmProviders.Google,
-            "AIzaSyANOBVHcsD3sRWblao9xtvPM0le_3-HwXY"
+            settings.Provider.ToLlmProviders(),
+            settings.ApiKey
         );
         
         // gemini-2.5-flash
@@ -56,8 +56,7 @@ public class TornadoAiService(
         // tencent/hy3:free
         var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
-            // Model = new ChatModel("openrouter/auto", LLmProviders.OpenRouter),
-            Model = new ChatModel("gemini-3.1-flash-lite", LLmProviders.Google),
+            Model = new ChatModel(settings.Model, settings.Provider.ToLlmProviders()),
             Tools = toolsService.Tools.ToList(),
             Temperature = temperature,
             ParallelToolCalls = true,
@@ -66,6 +65,8 @@ public class TornadoAiService(
         var systemPrompt = await promptBuilder.CreateSystemInstructions();
         
         var board = await boardRepository.GetById(boardId);
+        if (board is null)
+            throw new NotFoundException("Board not found");
         var boardContext = board.ToContext();
         var serializer = new SerializerBuilder()
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
@@ -79,7 +80,6 @@ public class TornadoAiService(
         for (var i = 0; i < maxTurns; i++)
         {
             var aiMessageId = Guid.NewGuid();
-            Console.WriteLine("NEW AI MESSAGE");
             var (response, callsCount) = await conversation.StreamResponseAsync(async tokens =>
                 {
                     await chatMessageService.SendMessageChunkAsync(boardId, aiMessageId, tokens);
@@ -88,7 +88,10 @@ public class TornadoAiService(
                 ct);
 
             if (!string.IsNullOrWhiteSpace(response))
+            {
                 await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, boardId, ChatMessageRole.Ai, response));
+                await unitOfWork.SaveChangesAsync();
+            }
         
             await chatMessageService.SendMessageCompletedAsync(boardId, aiMessageId);
 

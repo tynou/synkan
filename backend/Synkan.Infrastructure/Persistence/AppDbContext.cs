@@ -14,6 +14,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Label> Labels { get; set; }
     public DbSet<ChatMessage>  ChatMessages { get; set; }
     public DbSet<BoardMember> BoardMembers { get; set; }
+    public DbSet<BoardAiSettings> BoardAiSettings { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

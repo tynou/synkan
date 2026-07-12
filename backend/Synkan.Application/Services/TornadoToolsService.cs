@@ -39,10 +39,8 @@ public class TornadoToolsService
     
     public async ValueTask HandleToolCalls(List<FunctionCall> calls)
     {
-        Console.WriteLine($"NEED TO USE {calls.Count} TOOLS");
         foreach (var call in calls)
         {
-            Console.WriteLine($"CALLING TOOL: {call.Name}");
             try
             {
                 var result = await HandleFunctionCall(call);

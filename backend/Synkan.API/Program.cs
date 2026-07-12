@@ -52,7 +52,10 @@ public static class Program
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
 
-        services.AddSignalR();
+        services.AddSignalR(options =>
+        {
+            options.MaximumParallelInvocationsPerClient = 5;
+        });
         
         // TODO: SignalR Redis Backplane
         // services.AddSignalR().AddStackExchangeRedis(redisConnString, options => {
@@ -144,6 +147,7 @@ public static class Program
         services.AddScoped<ICardService, CardService>();
         services.AddScoped<IChecklistService, ChecklistService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ISettingsService, SettingsService>();
         services.AddScoped<IUnitOfWork, PostgresUnitOfWork>();
 
         services.AddScoped<INotificationService, NotificationService>();
@@ -166,7 +170,7 @@ public static class Program
         services.AddScoped<ICardRepository, CardRepository>();
         services.AddScoped<ILabelRepository, LabelRepository>();
         services.AddScoped<IBoardMemberRepository, BoardMemberRepository>();
-        
+        services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
     }
     

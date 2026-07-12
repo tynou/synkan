@@ -55,7 +55,6 @@ public class AiToolsService(
         [Description("The title of the card")] string title
     )
     {
-        Console.WriteLine($"Does this work? {columnId} {title}");
         var result = await cardService.Create(currentUser.UserId, Guid.Parse(columnId), title);
         return $"Card created: {result.ToString()}";
     }

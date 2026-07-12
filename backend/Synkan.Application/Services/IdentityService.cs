@@ -9,6 +9,7 @@ namespace Synkan.Application.Services;
 
 public class IdentityService(
     IUserRepository userRepository,
+    IUnitOfWork unitOfWork,
     IPasswordHasher passwordHasher,
     IJwtService jwtService
     ) : IIdentityService
@@ -23,6 +24,7 @@ public class IdentityService(
         var user = new User(username, passwordHash);
         
         await userRepository.AddAsync(user);
+        await unitOfWork.SaveChangesAsync();
 
         var token = jwtService.GenerateToken(user.Id);
         return token;

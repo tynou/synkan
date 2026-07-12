@@ -100,4 +100,13 @@ public static class ModelToDtoMappers
     {
         return new MessageDto(message.Id, message.Role, message.Content);
     }
+
+    public static BoardAiSettingsDto ToDto(this BoardAiSettings boardAiSettings)
+    {
+        return new BoardAiSettingsDto(
+            boardAiSettings.ApiKey,
+            boardAiSettings.Provider,
+            boardAiSettings.Model
+        );
+    }
 }

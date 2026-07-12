@@ -15,9 +15,10 @@ namespace Synkan.Application.Hubs;
 [Authorize]
 public class BoardHub(
     IAiService aiService,
+    ISettingsService settingsService,
     IChatMessageService chatMessageService,
     IChatMessageRepository chatMessageRepository,
-    TornadoPromptBuilder promptBuilder,
+    IUnitOfWork unitOfWork,
     IProcessingOperationService operationService,
     ILogger<BoardHub> logger
     ) : Hub<IBoardClient>
@@ -56,8 +57,11 @@ public class BoardHub(
             );
         
             await chatMessageRepository.AddAsync(message);
+            await unitOfWork.SaveChangesAsync();
+
+            var settings = await settingsService.GetOrCreateAsync(command.BoardId);
         
-            await aiService.ProcessMessageAsync(command.BoardId, command.Message, ct);
+            await aiService.ProcessMessageAsync(command.BoardId, command.Message, settings, ct);
 
             await chatMessageService.SendProcessingCompletedAsync(command.BoardId);
         }
