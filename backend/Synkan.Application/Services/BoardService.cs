@@ -15,6 +15,7 @@ public class BoardService(
     IBoardRepository boardRepository,
     IUserRepository userRepository,
     IBoardMemberRepository boardMemberRepository,
+    IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IBoardService
@@ -28,7 +29,10 @@ public class BoardService(
             throw new NotFoundException("User not found.");
         
         var board = new Board(userId, isPublic, title);
+        
         await boardRepository.Create(board);
+        await unitOfWork.SaveChangesAsync();
+        
         return board.Id;
     }
 
@@ -38,7 +42,7 @@ public class BoardService(
         
         var label = board.CreateLabel(name, color);
 
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         return label.Id;
     }
@@ -53,7 +57,7 @@ public class BoardService(
         
         board.AddMember(memberId, AccessLevel.Viewer);
 
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task RemoveMember(Guid userId, Guid boardId, Guid memberId)
@@ -61,7 +65,7 @@ public class BoardService(
         var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.RemoveMember(memberId);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel)
@@ -69,7 +73,7 @@ public class BoardService(
         var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.SetMemberAccessLevel(memberId, newAccessLevel);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task UpdateTitle(Guid userId, Guid boardId, string newTitle)
@@ -77,7 +81,7 @@ public class BoardService(
         var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.SetTitle(newTitle);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(boardId.ToString())
@@ -89,7 +93,7 @@ public class BoardService(
         var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
         board.SetVisibility(newIsPublic);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(boardId.ToString())
@@ -101,6 +105,7 @@ public class BoardService(
         var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
 
         await boardRepository.Delete(boardId);
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(boardId.ToString())
@@ -110,7 +115,6 @@ public class BoardService(
     public async Task<BoardDto> GetById(Guid userId, Guid boardId)
     {
         var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Viewer);
-        
         return board.ToDto();
     }
 

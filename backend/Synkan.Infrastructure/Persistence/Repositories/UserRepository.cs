@@ -8,8 +8,7 @@ public class UserRepository(AppDbContext context) : IUserRepository
 {
     public async Task AddAsync(User user)
     {
-        context.Users.Add(user);
-        await context.SaveChangesAsync();
+        await context.Users.AddAsync(user);
     }
 
     public async Task<User?> GetByUsernameAsync(string username)

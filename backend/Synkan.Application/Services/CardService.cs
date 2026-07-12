@@ -13,11 +13,11 @@ using Synkan.Domain.Repositories;
 namespace Synkan.Application.Services;
 
 public class CardService(
-    IBoardRepository boardRepository,
     IColumnRepository columnRepository,
     ICardRepository cardRepository,
     IBoardMemberRepository boardMemberRepository,
     ILabelRepository labelRepository,
+    IUnitOfWork unitOfWork,
     ICurrentUserService currentUser,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : ICardService
@@ -30,7 +30,7 @@ public class CardService(
         
         var card = column.AddCard(title);
         
-        await columnRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         await hubContext.Clients
             .Group(card.BoardId.ToString())
@@ -46,7 +46,7 @@ public class CardService(
         card.SetTitle(newTitle);
         card.SetDescription(newDescription);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(card.BoardId.ToString())
@@ -58,7 +58,7 @@ public class CardService(
         var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
         card.UpdateCoverColor(color);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(card.BoardId.ToString())
@@ -82,20 +82,19 @@ public class CardService(
         
         card.UpdateDeadline(dueDate, reminderTime, newJobId);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task RemoveDueDate(Guid cardId)
     {
         var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
-
-        var b = false;
+        
         if (!string.IsNullOrEmpty(card.ReminderJobId))
-            b = BackgroundJob.Delete(card.ReminderJobId);
-        Console.WriteLine(b);
+            BackgroundJob.Delete(card.ReminderJobId);
         
         card.RemoveDeadline();
-        await cardRepository.SaveChangesAsync();
+        
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task AssignLabel(Guid cardId, Guid labelId)
@@ -110,7 +109,7 @@ public class CardService(
         
         card.AssignLabel(label);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task RemoveLabel(Guid cardId, Guid labelId)
@@ -121,7 +120,7 @@ public class CardService(
         
         card.RemoveLabel(labelId);
 
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition)
@@ -145,7 +144,7 @@ public class CardService(
             targetColumn.InsertCard(card, newPosition);
         }
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(card.BoardId.ToString())
@@ -157,11 +156,11 @@ public class CardService(
         var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
         card.Column.RemoveCard(card);
 
+        await unitOfWork.SaveChangesAsync();
+        
         await hubContext.Clients
             .Group(card.BoardId.ToString())
             .OnCardDeleted(new CardDeletedEvent(cardId));
-        
-        await columnRepository.SaveChangesAsync();
     }
 
     public async Task<CardDto> GetById(Guid userId, Guid cardId)

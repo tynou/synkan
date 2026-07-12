@@ -8,14 +8,12 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
 {
     public async Task Create(Board board)
     {
-        context.Boards.Add(board);
-        await context.SaveChangesAsync();
+        await context.Boards.AddAsync(board);
     }
 
     public async Task Delete(Guid boardId)
     {
         context.Boards.Remove(context.Boards.First(b => b.Id == boardId));
-        await context.SaveChangesAsync();
     }
 
     public async Task<Board?> GetById(Guid boardId)
@@ -45,16 +43,4 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
                 .ThenInclude(c => c.Cards.OrderBy(card => card.Position))
             .ToListAsync();
     }
-
-    public async Task<bool> UserHasReadAccess(Guid boardId, Guid userId)
-    {
-        return await context.Boards
-            .AsNoTracking()
-            .Where(b => b.Id == boardId)
-            .AnyAsync(b => b.IsPublic
-                           || b.OwnerId == userId
-                           || b.Members.Any(m => m.UserId == userId));
-    }
-
-    public async Task SaveChangesAsync() => await context.SaveChangesAsync();
 }

@@ -15,6 +15,7 @@ public class ColumnService(
     IBoardRepository boardRepository,
     IColumnRepository columnRepository,
     IBoardMemberRepository boardMemberRepository,
+    IUnitOfWork unitOfWork,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IColumnService
 {
@@ -24,7 +25,7 @@ public class ColumnService(
 
         var column = board.AddColumn(title);
 
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(column.BoardId.ToString())
@@ -38,7 +39,7 @@ public class ColumnService(
         var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
         column.SetTitle(newTitle);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(column.BoardId.ToString())
@@ -50,7 +51,7 @@ public class ColumnService(
         var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
         column.Board.MoveColumn(columnId, newPosition);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(column.BoardId.ToString())
@@ -62,7 +63,7 @@ public class ColumnService(
         var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
         column.Board.RemoveColumn(columnId);
         
-        await boardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(column.BoardId.ToString())

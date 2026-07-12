@@ -7,7 +7,8 @@ using Synkan.Domain.Repositories;
 namespace Synkan.Application.Services;
 
 public class ChecklistService(
-    ICardRepository cardRepository, 
+    ICardRepository cardRepository,
+    IUnitOfWork unitOfWork,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IChecklistService
 {
@@ -19,7 +20,7 @@ public class ChecklistService(
         
         var checklist = card.AddChecklist(title);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
         
         // await hubContext.Clients
         //     .Group(card.BoardId.ToString())
@@ -36,7 +37,7 @@ public class ChecklistService(
         
         var item = card.AddChecklistItem(checklistId, text);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
 
         return item.Id;
     }
@@ -49,7 +50,7 @@ public class ChecklistService(
         
         card.ToggleChecklistItem(checklistId, itemId, isCompleted);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task Delete(Guid userId, Guid cardId, Guid checklistId)
@@ -60,7 +61,7 @@ public class ChecklistService(
         
         card.RemoveChecklist(checklistId);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 
     public async Task DeleteItem(Guid userId, Guid cardId, Guid checklistId, Guid itemId)
@@ -71,6 +72,6 @@ public class ChecklistService(
         
         card.RemoveChecklistItem(checklistId, itemId);
         
-        await cardRepository.SaveChangesAsync();
+        await unitOfWork.SaveChangesAsync();
     }
 }

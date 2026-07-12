@@ -9,7 +9,6 @@ public class ChatMessageRepository(AppDbContext context) : IChatMessageRepositor
     public async Task AddAsync(ChatMessage message)
     {
         await context.ChatMessages.AddAsync(message);
-        await context.SaveChangesAsync();
     }
 
     public async Task<IReadOnlyCollection<ChatMessage>> GetByBoardIdAsync(Guid boardId)
