@@ -32,28 +32,11 @@ public class TornadoAiService(
     
     public async Task ProcessMessageAsync(Guid boardId, string content, BoardAiSettings settings, CancellationToken ct)
     {
-        // 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
-        // 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
-        // var api = new TornadoApi(
-        //     LLmProviders.OpenRouter,
-        //     "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"
-        //     );
-        
         var api = new TornadoApi(
             settings.Provider.ToLlmProviders(),
             settings.ApiKey
         );
         
-        // gemini-2.5-flash
-        // gemini-2.5-flash-lite
-        // gemini-2.5-pro
-        // gemini-3.1-flash-lite
-        // gemini-3.5-flash
-        
-        // poolside/laguna-m.1:free
-        // nvidia/nemotron-3-ultra-550b-a55b:free
-        // openrouter/auto
-        // tencent/hy3:free
         var conversation = new LlmTornadoConversation(api.Chat.CreateConversation(new ChatRequest
         {
             Model = new ChatModel(settings.Model, settings.Provider.ToLlmProviders()),
@@ -110,11 +93,6 @@ public sealed class LlmTornadoConversation(Conversation conversation)
     {
         conversation.PrependSystemMessage(instructions);
     }
-
-    // public void AddMessages(IEnumerable<TornadoChatMessage> messages)
-    // {
-    //     conversation.AddMessage(messages);
-    // }
 
     public void AddUserMessage(string message)
     {
