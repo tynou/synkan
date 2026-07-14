@@ -10,7 +10,8 @@ public static class ModelToContextMappers
         return new BoardContext(
             board.Id,
             board.Title,
-            board.Columns.Select(c => c.ToContext())
+            board.Columns.Select(c => c.ToContext()),
+            board.AvailableLabels.Select(l => l.ToContext())
         );
     }
 
@@ -31,7 +32,9 @@ public static class ModelToContextMappers
             card.Title,
             card.Description,
             card.Position,
-            card.Checklists.Select(c => c.ToContext())
+            card.CoverColor,
+            card.Checklists.Select(c => c.ToContext()),
+            card.Labels.Select(l => l.ToContext())
         );
     }
 
@@ -50,6 +53,15 @@ public static class ModelToContextMappers
             item.Id,
             item.Text,
             item.IsCompleted
+        );
+    }
+
+    public static LabelContext ToContext(this Label label)
+    {
+        return new LabelContext(
+            label.Id,
+            label.Name,
+            label.Color
         );
     }
 }

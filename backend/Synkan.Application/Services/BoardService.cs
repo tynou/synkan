@@ -22,13 +22,13 @@ public class BoardService(
 {
     private Guid UserId => currentUser.UserId;
     
-    public async Task<Guid> Create(Guid userId, bool isPublic, string title)
+    public async Task<Guid> Create(bool isPublic, string title)
     {
-        var user = await userRepository.GetByIdAsync(userId);
+        var user = await userRepository.GetByIdAsync(UserId);
         if (user is null)
             throw new NotFoundException("User not found.");
         
-        var board = new Board(userId, isPublic, title);
+        var board = new Board(UserId, isPublic, title);
         
         await boardRepository.Create(board);
         await unitOfWork.SaveChangesAsync();
@@ -43,13 +43,17 @@ public class BoardService(
         var label = board.CreateLabel(name, color);
 
         await unitOfWork.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnLabelCreated(label.ToDto());
 
         return label.Id;
     }
 
-    public async Task AddMember(Guid userId, Guid boardId, Guid memberId)
+    public async Task AddMember(Guid boardId, Guid memberId)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Admin);
         
         var member = await userRepository.GetByIdAsync(memberId);
         if (member is null)
@@ -60,25 +64,25 @@ public class BoardService(
         await unitOfWork.SaveChangesAsync();
     }
 
-    public async Task RemoveMember(Guid userId, Guid boardId, Guid memberId)
+    public async Task RemoveMember(Guid boardId, Guid memberId)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Admin);
         board.RemoveMember(memberId);
         
         await unitOfWork.SaveChangesAsync();
     }
 
-    public async Task UpdateMemberAccessLevel(Guid userId, Guid boardId, Guid memberId, AccessLevel newAccessLevel)
+    public async Task UpdateMemberAccessLevel(Guid boardId, Guid memberId, AccessLevel newAccessLevel)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Admin);
         board.SetMemberAccessLevel(memberId, newAccessLevel);
         
         await unitOfWork.SaveChangesAsync();
     }
 
-    public async Task UpdateTitle(Guid userId, Guid boardId, string newTitle)
+    public async Task UpdateTitle(Guid boardId, string newTitle)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Admin);
         board.SetTitle(newTitle);
         
         await unitOfWork.SaveChangesAsync();
@@ -88,9 +92,9 @@ public class BoardService(
             .OnBoardTitleUpdated(new BoardTitleUpdatedEvent(boardId, newTitle));
     }
     
-    public async Task ChangeVisibility(Guid userId, Guid boardId, bool newIsPublic)
+    public async Task ChangeVisibility(Guid boardId, bool newIsPublic)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Admin);
         board.SetVisibility(newIsPublic);
         
         await unitOfWork.SaveChangesAsync();
@@ -100,9 +104,9 @@ public class BoardService(
             .OnBoardVisibilityChanged(new BoardVisibilityChangedEvent(boardId, newIsPublic));
     }
 
-    public async Task Delete(Guid userId, Guid boardId)
+    public async Task Delete(Guid boardId)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Admin);
+        await VerifyBoardAccess(boardId, UserId, AccessLevel.Admin);
 
         await boardRepository.Delete(boardId);
         await unitOfWork.SaveChangesAsync();
@@ -112,9 +116,9 @@ public class BoardService(
             .OnBoardDeleted(new BoardDeletedEvent(boardId));
     }
 
-    public async Task<BoardDto> GetById(Guid userId, Guid boardId)
+    public async Task<BoardDto> GetById(Guid boardId)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Viewer);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Viewer);
         return board.ToDto();
     }
 

@@ -15,13 +15,16 @@ public class ColumnService(
     IBoardRepository boardRepository,
     IColumnRepository columnRepository,
     IBoardMemberRepository boardMemberRepository,
+    ICurrentUserService currentUser,
     IUnitOfWork unitOfWork,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IColumnService
 {
-    public async Task<Guid> Create(Guid userId, Guid boardId, string title)
+    private Guid UserId => currentUser.UserId;
+    
+    public async Task<Guid> Create(Guid boardId, string title)
     {
-        var board = await GetBoardAndVerifyAccess(boardId, userId, AccessLevel.Member);
+        var board = await GetBoardAndVerifyAccess(boardId, UserId, AccessLevel.Member);
 
         var column = board.AddColumn(title);
 
@@ -34,9 +37,9 @@ public class ColumnService(
         return column.Id;
     }
 
-    public async Task UpdateTitle(Guid userId, Guid columnId, string newTitle)
+    public async Task UpdateTitle(Guid columnId, string newTitle)
     {
-        var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
+        var column = await GetColumnAndVerifyAccess(columnId, UserId, AccessLevel.Member);
         column.SetTitle(newTitle);
         
         await unitOfWork.SaveChangesAsync();
@@ -46,9 +49,9 @@ public class ColumnService(
             .OnColumnTitleUpdated(new ColumnTitleUpdatedEvent(columnId, newTitle));
     }
     
-    public async Task Move(Guid userId, Guid columnId, int newPosition)
+    public async Task Move(Guid columnId, int newPosition)
     {
-        var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
+        var column = await GetColumnAndVerifyAccess(columnId, UserId, AccessLevel.Member);
         column.Board.MoveColumn(columnId, newPosition);
         
         await unitOfWork.SaveChangesAsync();
@@ -58,9 +61,9 @@ public class ColumnService(
             .OnColumnMoved(new ColumnMovedEvent(columnId, newPosition));
     }
 
-    public async Task Delete(Guid userId, Guid columnId)
+    public async Task Delete(Guid columnId)
     {
-        var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
+        var column = await GetColumnAndVerifyAccess(columnId, UserId, AccessLevel.Member);
         column.Board.RemoveColumn(columnId);
         
         await unitOfWork.SaveChangesAsync();
@@ -70,9 +73,9 @@ public class ColumnService(
             .OnColumnDeleted(new ColumnDeletedEvent(columnId));
     }
 
-    public async Task<ColumnDto> GetById(Guid userId, Guid columnId)
+    public async Task<ColumnDto> GetById(Guid columnId)
     {
-        var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Viewer);
+        var column = await GetColumnAndVerifyAccess(columnId, UserId, AccessLevel.Viewer);
         return column.ToDto();
     }
     

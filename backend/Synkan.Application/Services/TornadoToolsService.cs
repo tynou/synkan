@@ -30,6 +30,10 @@ public class TornadoToolsService
         RegisterTool(toolsService.MoveCard);
         RegisterTool(toolsService.DeleteCard);
         
+        RegisterTool(toolsService.AssignCardLabel);
+        RegisterTool(toolsService.RemoveCardLabel);
+        RegisterTool(toolsService.CreateLabel);
+        
         RegisterTool(toolsService.CreateChecklist);
         RegisterTool(toolsService.DeleteChecklist);
         RegisterTool(toolsService.CreateChecklistItem);

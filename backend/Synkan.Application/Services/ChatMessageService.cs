@@ -2,6 +2,8 @@
 using Synkan.Application.Events;
 using Synkan.Application.Hubs;
 using Synkan.Application.Interfaces;
+using Synkan.Application.Mappers;
+using Synkan.Domain.Entities;
 
 namespace Synkan.Application.Services;
 
@@ -9,6 +11,13 @@ public class ChatMessageService(
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IChatMessageService
 {
+    public async Task SendMessageSentAsync(Guid boardId, ChatMessage message)
+    {
+        await hubContext.Clients
+            .Group(boardId.ToString())
+            .OnMessageSent(message.ToDto());
+    }
+
     public async Task SendMessageChunkAsync(Guid boardId, Guid messageId, string chunk)
     {
         await hubContext.Clients

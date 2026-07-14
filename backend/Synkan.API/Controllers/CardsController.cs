@@ -9,33 +9,33 @@ namespace Synkan.API.Controllers;
 [ApiController]
 [Authorize]
 [Route("api/[controller]")]
-public class CardsController(ICardService cardService, ICurrentUserService currentUser) : ControllerBase
+public class CardsController(ICardService cardService) : ControllerBase
 {
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<CardDto>> Get(Guid id)
     {
-        var result = await cardService.GetById(currentUser.UserId, id);
+        var result = await cardService.GetById(id);
         return Ok(result);
     }
     
     [HttpPost]
     public async Task<ActionResult<CreationResponse>> Create([FromBody] CreateCardRequest request)
     {
-        var result = await cardService.Create(currentUser.UserId, request.ColumnId, request.Title);
+        var result = await cardService.Create(request.ColumnId, request.Title);
         return Ok(new CreationResponse(result));
     }
     
     [HttpPatch("{id:guid}")]
     public async Task<ActionResult> UpdateContent(Guid id, [FromBody] UpdateCardContentRequest request)
     {
-        await cardService.UpdateContent(currentUser.UserId, id, request.Title, request.Description);
+        await cardService.UpdateContent(id, request.Title, request.Description);
         return Ok();
     }
     
     [HttpPut("{id:guid}/cover")]
     public async Task<ActionResult> UpdateContent(Guid id, [FromBody] UpdateCardCoverRequest request)
     {
-        await cardService.UpdateCover(currentUser.UserId, id, request.Color);
+        await cardService.UpdateCover(id, request.Color);
         return Ok();
     }
     
@@ -70,14 +70,14 @@ public class CardsController(ICardService cardService, ICurrentUserService curre
     [HttpPost("{id:guid}/move")]
     public async Task<ActionResult> Move(Guid id, [FromBody] MoveCardRequest request)
     {
-        await cardService.Move(currentUser.UserId, id, request.NewColumnId, request.NewPosition);
+        await cardService.Move(id, request.NewColumnId, request.NewPosition);
         return Ok();
     }
     
     [HttpDelete("{id:guid}")]
     public async Task<ActionResult> Delete(Guid id)
     {
-        await cardService.Delete(currentUser.UserId, id);
+        await cardService.Delete(id);
         return NoContent();
     }
 }

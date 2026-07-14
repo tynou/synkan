@@ -4,5 +4,6 @@ public record BoardContext(
     Guid Id,
     string Title,
     // IEnumerable<MemberContext> Members,
-    IEnumerable<ColumnContext> Columns
+    IEnumerable<ColumnContext> Columns,
+    IEnumerable<LabelContext> AvailableLabels
 );

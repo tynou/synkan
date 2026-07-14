@@ -60,27 +60,29 @@ public class TornadoAiService(
         
         conversation.AddUserMessage(content);
 
+        var aiMessageId = Guid.NewGuid();
+        var finalResponse = new StringBuilder();
         for (var i = 0; i < maxTurns; i++)
         {
-            var aiMessageId = Guid.NewGuid();
             var (response, callsCount) = await conversation.StreamResponseAsync(async tokens =>
                 {
                     await chatMessageService.SendMessageChunkAsync(boardId, aiMessageId, tokens);
                 },
                 toolsService.HandleToolCalls,
-                ct);
+                ct
+            );
 
-            if (!string.IsNullOrWhiteSpace(response))
-            {
-                await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, boardId, ChatMessageRole.Ai, response));
-                await unitOfWork.SaveChangesAsync();
-            }
-        
-            await chatMessageService.SendMessageCompletedAsync(boardId, aiMessageId);
-
+            finalResponse.Append(response);
+            
             if (callsCount == 0)
                 break;
         }
+        
+        var finalResponseText = finalResponse.ToString();
+        await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, boardId, ChatMessageRole.Ai, finalResponseText));
+        await unitOfWork.SaveChangesAsync();
+        
+        await chatMessageService.SendMessageCompletedAsync(boardId, aiMessageId);
     }
 }
 

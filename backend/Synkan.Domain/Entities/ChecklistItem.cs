@@ -18,8 +18,8 @@ public class ChecklistItem
         IsCompleted = false;
     }
 
-    public void Toggle(bool isCompleted)
+    public void Toggle()
     {
-        IsCompleted = isCompleted;
+        IsCompleted = !IsCompleted;
     }
 }

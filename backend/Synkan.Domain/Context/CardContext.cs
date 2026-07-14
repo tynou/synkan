@@ -5,6 +5,7 @@ public record CardContext(
     string Title,
     string Description,
     int Position,
-    // string? CoverColor,
-    IEnumerable<ChecklistContext> Checklists
+    string? CoverColor,
+    IEnumerable<ChecklistContext> Checklists,
+    IEnumerable<LabelContext> Labels
 );

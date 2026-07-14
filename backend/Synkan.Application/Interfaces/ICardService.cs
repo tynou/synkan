@@ -4,11 +4,11 @@ namespace Synkan.Application.Interfaces;
 
 public interface ICardService
 {
-    Task<Guid> Create(Guid userId, Guid columnId, string title);
+    Task<Guid> Create(Guid columnId, string title);
     
-    Task UpdateContent(Guid userId, Guid cardId, string newTitle, string newDescription);
+    Task UpdateContent(Guid cardId, string newTitle, string newDescription);
     
-    Task UpdateCover(Guid userId, Guid cardId, string? color);
+    Task UpdateCover(Guid cardId, string? color);
     
     Task UpdateDueDate(Guid cardId, DateTimeOffset dueDate, DateTimeOffset reminderTime);
     
@@ -18,9 +18,9 @@ public interface ICardService
     
     Task RemoveLabel(Guid cardId, Guid labelId);
     
-    Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition);
+    Task Move(Guid cardId, Guid newColumnId, int newPosition);
     
-    Task Delete(Guid userId, Guid cardId);
+    Task Delete(Guid cardId);
     
-    Task<CardDto> GetById(Guid userId, Guid cardId);
+    Task<CardDto> GetById(Guid cardId);
 }

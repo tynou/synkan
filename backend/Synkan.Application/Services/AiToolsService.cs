@@ -6,8 +6,8 @@ namespace Synkan.Application.Services;
 public class AiToolsService(
     ICardService cardService,
     IColumnService columnService,
-    IChecklistService checklistService,
-    ICurrentUserService currentUser
+    IBoardService boardService,
+    IChecklistService checklistService
     ) : IAiToolsService
 {
     [Description("Creates a new column")] 
@@ -16,7 +16,7 @@ public class AiToolsService(
         [Description("The title of the new column")] string title
     )
     {
-        var result = await columnService.Create(currentUser.UserId, Guid.Parse(boardId), title);
+        var result = await columnService.Create(Guid.Parse(boardId), title);
         return $"Column created: {result.ToString()}";
     }
 
@@ -26,7 +26,7 @@ public class AiToolsService(
         [Description("The new title")] string newTitle
     )
     {
-        await columnService.UpdateTitle(currentUser.UserId, Guid.Parse(columnId), newTitle);
+        await columnService.UpdateTitle(Guid.Parse(columnId), newTitle);
         return "Column title changed";
     }
 
@@ -36,7 +36,7 @@ public class AiToolsService(
         [Description("The new position")] int newPosition
     )
     {
-        await columnService.Move(currentUser.UserId, Guid.Parse(columnId), newPosition);
+        await columnService.Move(Guid.Parse(columnId), newPosition);
         return "Column moved";
     }
 
@@ -45,7 +45,7 @@ public class AiToolsService(
         [Description("The Id of the column")] string columnId
     )
     {
-        await columnService.Delete(currentUser.UserId, Guid.Parse(columnId));
+        await columnService.Delete(Guid.Parse(columnId));
         return "Column deleted";
     }
 
@@ -55,7 +55,7 @@ public class AiToolsService(
         [Description("The title of the card")] string title
     )
     {
-        var result = await cardService.Create(currentUser.UserId, Guid.Parse(columnId), title);
+        var result = await cardService.Create(Guid.Parse(columnId), title);
         return $"Card created: {result.ToString()}";
     }
 
@@ -66,38 +66,69 @@ public class AiToolsService(
         [Description("The new description of the card")] string newDescription
     )
     {
-        await cardService.UpdateContent(currentUser.UserId, Guid.Parse(cardId), newTitle, newDescription);
+        await cardService.UpdateContent(Guid.Parse(cardId), newTitle, newDescription);
         return "Card content changed";
     }
 
-    [Description("Changes the color of the card")] 
+    [Description("Changes the color of the card")]
     public async Task<string> UpdateCardCover(
         [Description("The Id of the card")] string cardId,
         [Description("The color in hex string format")] string color
     )
     {
-        await cardService.UpdateCover(currentUser.UserId, Guid.Parse(cardId), color);
+        await cardService.UpdateCover(Guid.Parse(cardId), color);
         return "Card color changed";
     }
 
-    [Description("Moves the card to the specified position in the specified column")] 
+    [Description("Moves the card to the specified position in the specified column")]
     public async Task<string> MoveCard(
         [Description("The Id of the card")] string cardId, 
         [Description("The Id of the new column")] string newColumnId, 
         [Description("The new position")] int newPosition
     )
     {
-        await cardService.Move(currentUser.UserId, Guid.Parse(cardId), Guid.Parse(newColumnId), newPosition);
+        await cardService.Move(Guid.Parse(cardId), Guid.Parse(newColumnId), newPosition);
         return "Card moved";
     }
 
-    [Description("Deletes the card")] 
+    [Description("Deletes the card")]
     public async Task<string> DeleteCard(
         [Description("The Id of the card")] string cardId
     )
     {
-        await cardService.Delete(currentUser.UserId, Guid.Parse(cardId));
+        await cardService.Delete(Guid.Parse(cardId));
         return "Card deleted";
+    }
+
+    [Description("Assignes a label to the card")]
+    public async Task<string> AssignCardLabel(
+        [Description("The Id of the card")] string cardId,
+        [Description("The Id of the label")] string labelId
+    )
+    {
+        await cardService.AssignLabel(Guid.Parse(cardId), Guid.Parse(labelId));
+        return "Label assigned";
+    }
+
+    [Description("Removes the label from the card")]
+    public async Task<string> RemoveCardLabel(
+        [Description("The Id of the card")] string cardId,
+        [Description("The Id of the label")] string labelId
+    )
+    {
+        await cardService.RemoveLabel(Guid.Parse(cardId), Guid.Parse(labelId));
+        return "Label removed";
+    }
+
+    [Description("Creates a label that can be assigned to any cards on the board")]
+    public async Task<string> CreateLabel(
+        [Description("The Id of the board")] string boardId,
+        [Description("The name of the label")] string name,
+        [Description("The color of the label")] string color
+    )
+    {
+        var result = await boardService.CreateLabel(Guid.Parse(boardId), name, color);
+        return $"Label created: {result.ToString()}";
     }
 
     [Description("Creates a checklist in the specified card with the given title")] 
@@ -106,7 +137,7 @@ public class AiToolsService(
         [Description("The title of the checklist")] string title
     )
     {
-        var result = await checklistService.Create(currentUser.UserId, Guid.Parse(cardId), title);
+        var result = await checklistService.Create(Guid.Parse(cardId), title);
         return $"Checklist created: {result.ToString()}";
     }
 
@@ -116,7 +147,7 @@ public class AiToolsService(
         [Description("The Id of the checklist")] string checklistId
     )
     {
-        await checklistService.Delete(currentUser.UserId, Guid.Parse(cardId), Guid.Parse(checklistId));
+        await checklistService.Delete(Guid.Parse(cardId), Guid.Parse(checklistId));
         return "Checklist deleted";
     }
 
@@ -127,7 +158,7 @@ public class AiToolsService(
         [Description("The text of the item")] string itemText
     )
     {
-        var result = await checklistService.CreateItem(currentUser.UserId, Guid.Parse(cardId), Guid.Parse(checklistId), itemText);
+        var result = await checklistService.CreateItem(Guid.Parse(cardId), Guid.Parse(checklistId), itemText);
         return $"Checklist item created: {result.ToString()}";
     }
 
@@ -138,7 +169,7 @@ public class AiToolsService(
         [Description("The Id of the checklist item")] string itemId
     )
     {
-        await checklistService.DeleteItem(currentUser.UserId, Guid.Parse(cardId), Guid.Parse(checklistId), Guid.Parse(itemId));
+        await checklistService.DeleteItem(Guid.Parse(cardId), Guid.Parse(checklistId), Guid.Parse(itemId));
         return "Checklist item deleted";
     }
 
@@ -146,17 +177,10 @@ public class AiToolsService(
     public async Task<string> ToggleChecklistItem(
         [Description("The Id of the card")] string cardId,
         [Description("The Id of the checklist")] string checklistId,
-        [Description("The Id of the checklist item")] string itemId,
-        [Description("The new state of the checklist item")] bool isCompleted
+        [Description("The Id of the checklist item")] string itemId
     )
     {
-        await checklistService.ToggleItem(
-            currentUser.UserId,
-            Guid.Parse(cardId),
-            Guid.Parse(checklistId),
-            Guid.Parse(itemId),
-            isCompleted
-        );
+        await checklistService.ToggleItem(Guid.Parse(cardId), Guid.Parse(checklistId), Guid.Parse(itemId));
         return "Checklist item toggled";
     }
 }

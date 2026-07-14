@@ -57,6 +57,44 @@ public interface IBoardClient
     Task OnBoardDeleted(BoardDeletedEvent @event);
     
     
+    [Channel(nameof(OnChecklistCreated))]
+    [SubscribeOperation(typeof(ChecklistDto), Summary = "Событие создания чеклиста")]
+    Task OnChecklistCreated(ChecklistDto checklist);
+    
+    [Channel(nameof(OnChecklistItemCreated))]
+    [SubscribeOperation(typeof(ChecklistItemDto), Summary = "Событие создания задачи в чеклисте")]
+    Task OnChecklistItemCreated(ChecklistItemDto item);
+    
+    [Channel(nameof(OnChecklistItemToggled))]
+    [SubscribeOperation(typeof(ChecklistItemToggledEvent), Summary = "Событие изменения статуса задачи в чеклисте")]
+    Task OnChecklistItemToggled(ChecklistItemToggledEvent @event);
+    
+    [Channel(nameof(OnChecklistDeleted))]
+    [SubscribeOperation(typeof(ChecklistDeletedEvent), Summary = "Событие удаления чеклиста")]
+    Task OnChecklistDeleted(ChecklistDeletedEvent @event);
+    
+    [Channel(nameof(OnChecklistItemDeleted))]
+    [SubscribeOperation(typeof(ChecklistItemDeletedEvent), Summary = "Событие удаления задачи в чеклисте")]
+    Task OnChecklistItemDeleted(ChecklistItemDeletedEvent @event);
+    
+    
+    [Channel(nameof(OnCardLabelAssigned))]
+    [SubscribeOperation(typeof(CardLabelAssignedEvent), Summary = "Событие назначения метки карточке")]
+    Task OnCardLabelAssigned(CardLabelAssignedEvent @event);
+    
+    [Channel(nameof(OnCardLabelRemoved))]
+    [SubscribeOperation(typeof(CardLabelRemovedEvent), Summary = "Событие удаления метки у карточки")]
+    Task OnCardLabelRemoved(CardLabelRemovedEvent @event);
+    
+    [Channel(nameof(OnLabelCreated))]
+    [SubscribeOperation(typeof(LabelDto), Summary = "Событие создания метки для доски")]
+    Task OnLabelCreated(LabelDto label);
+    
+    
+    [Channel(nameof(OnMessageSent))]
+    [SubscribeOperation(typeof(MessageDto), Summary = "Событие отправки сообщения")]
+    Task OnMessageSent(MessageDto message);
+    
     [Channel(nameof(OnMessageChunk))]
     [SubscribeOperation(typeof(MessageChunkEvent), Summary = "Событие отправки куска сообщения")]
     Task OnMessageChunk(MessageChunkEvent @event);

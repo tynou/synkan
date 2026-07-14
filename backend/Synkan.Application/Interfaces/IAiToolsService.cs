@@ -22,6 +22,13 @@ public interface IAiToolsService
     Task<string> DeleteCard(string cardId);
     
     
+    Task<string> AssignCardLabel(string cardId, string labelId);
+    
+    Task<string> RemoveCardLabel(string cardId, string labelId);
+    
+    Task<string> CreateLabel(string boardId, string name, string color);
+    
+    
     Task<string> CreateChecklist(string cardId, string title);
     
     Task<string> DeleteChecklist(string cardId, string checklistId);
@@ -30,5 +37,5 @@ public interface IAiToolsService
     
     Task<string> DeleteChecklistItem(string cardId, string checklistId, string itemId);
     
-    Task<string> ToggleChecklistItem(string cardId, string checklistId, string itemId, bool isCompleted);
+    Task<string> ToggleChecklistItem(string cardId, string checklistId, string itemId);
 }

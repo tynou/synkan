@@ -58,6 +58,8 @@ public class BoardHub(
         
             await chatMessageRepository.AddAsync(message);
             await unitOfWork.SaveChangesAsync();
+            
+            await chatMessageService.SendMessageSentAsync(command.BoardId, message);
 
             var settings = await settingsService.GetOrCreateAsync(command.BoardId);
         
@@ -84,6 +86,7 @@ public class BoardHub(
     [PublishOperation(typeof(CancelProcessingCommand), Summary = "Отмена обработки сообщения")]
     public Task CancelProcessing(CancelProcessingCommand command)
     {
+        Console.WriteLine("Trying to cancel the operation...");
         operationService.CancelOperation(command.BoardId.ToString());
         return Task.CompletedTask;
     }

@@ -24,9 +24,9 @@ public class CardService(
 {
     private Guid UserId => currentUser.UserId;
     
-    public async Task<Guid> Create(Guid userId, Guid columnId, string title)
+    public async Task<Guid> Create(Guid columnId, string title)
     {
-        var column = await GetColumnAndVerifyAccess(columnId, userId, AccessLevel.Member);
+        var column = await GetColumnAndVerifyAccess(columnId, UserId, AccessLevel.Member);
         
         var card = column.AddCard(title);
         
@@ -39,9 +39,9 @@ public class CardService(
         return card.Id;
     }
 
-    public async Task UpdateContent(Guid userId, Guid cardId, string newTitle, string newDescription)
+    public async Task UpdateContent(Guid cardId, string newTitle, string newDescription)
     {
-        var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
         
         card.SetTitle(newTitle);
         card.SetDescription(newDescription);
@@ -53,9 +53,9 @@ public class CardService(
             .OnCardContentUpdated(new CardContentUpdatedEvent(cardId, newTitle, newDescription));
     }
     
-    public async Task UpdateCover(Guid userId, Guid cardId, string? color)
+    public async Task UpdateCover(Guid cardId, string? color)
     {
-        var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
         card.UpdateCoverColor(color);
         
         await unitOfWork.SaveChangesAsync();
@@ -110,6 +110,10 @@ public class CardService(
         card.AssignLabel(label);
         
         await unitOfWork.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardLabelAssigned(new CardLabelAssignedEvent(cardId, labelId));
     }
 
     public async Task RemoveLabel(Guid cardId, Guid labelId)
@@ -121,11 +125,15 @@ public class CardService(
         card.RemoveLabel(labelId);
 
         await unitOfWork.SaveChangesAsync();
+        
+        await hubContext.Clients
+            .Group(card.BoardId.ToString())
+            .OnCardLabelRemoved(new CardLabelRemovedEvent(cardId, labelId));
     }
 
-    public async Task Move(Guid userId, Guid cardId, Guid newColumnId, int newPosition)
+    public async Task Move(Guid cardId, Guid newColumnId, int newPosition)
     {
-        var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
         
         var column = card.Column; 
         
@@ -135,7 +143,7 @@ public class CardService(
         }
         else
         {
-            var targetColumn = await GetColumnAndVerifyAccess(newColumnId, userId, AccessLevel.Member);
+            var targetColumn = await GetColumnAndVerifyAccess(newColumnId, UserId, AccessLevel.Member);
             
             if (targetColumn.BoardId != card.BoardId)
                 throw new ConflictException("Target column belongs to a different board.");
@@ -151,9 +159,9 @@ public class CardService(
             .OnCardMoved(new CardMovedEvent(cardId, newColumnId, newPosition));
     }
 
-    public async Task Delete(Guid userId, Guid cardId)
+    public async Task Delete(Guid cardId)
     {
-        var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Member);
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
         card.Column.RemoveCard(card);
 
         await unitOfWork.SaveChangesAsync();
@@ -163,9 +171,9 @@ public class CardService(
             .OnCardDeleted(new CardDeletedEvent(cardId));
     }
 
-    public async Task<CardDto> GetById(Guid userId, Guid cardId)
+    public async Task<CardDto> GetById(Guid cardId)
     {
-        var card = await GetCardAndVerifyAccess(cardId, userId, AccessLevel.Viewer);
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Viewer);
         return card.ToDto();
     }
     

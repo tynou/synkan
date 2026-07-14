@@ -2,13 +2,13 @@
 
 public interface IChecklistService
 {
-    Task<Guid> Create(Guid userId, Guid cardId, string title);
+    Task<Guid> Create(Guid cardId, string title);
     
-    Task<Guid> CreateItem(Guid userId, Guid cardId, Guid checklistId, string text);
+    Task<Guid> CreateItem(Guid cardId, Guid checklistId, string text);
 
-    Task ToggleItem(Guid userId, Guid cardId, Guid checklistId, Guid itemId, bool isCompleted);
+    Task ToggleItem(Guid cardId, Guid checklistId, Guid itemId);
     
-    Task Delete(Guid userId, Guid cardId, Guid checklistId);
+    Task Delete(Guid cardId, Guid checklistId);
     
-    Task DeleteItem(Guid userId, Guid cardId, Guid checklistId, Guid itemId);
+    Task DeleteItem(Guid cardId, Guid checklistId, Guid itemId);
 }
