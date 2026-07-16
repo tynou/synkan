@@ -26,9 +26,9 @@ public class ChecklistsController(IChecklistService checklistService) : Controll
     }
 
     [HttpPut("{checklistId:guid}/items/{itemId:guid}")]
-    public async Task<ActionResult> ToggleItem(Guid cardId, Guid checklistId, Guid itemId)
+    public async Task<ActionResult> ToggleItem(Guid cardId, Guid checklistId, Guid itemId, [FromBody] ToggleChecklistItemRequest request)
     {
-        await checklistService.ToggleItem(cardId, checklistId, itemId);
+        await checklistService.ToggleItem(cardId, checklistId, itemId, request.IsCompleted);
         return Ok();
     }
     

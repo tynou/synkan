@@ -37,5 +37,5 @@ public interface IAiToolsService
     
     Task<string> DeleteChecklistItem(string cardId, string checklistId, string itemId);
     
-    Task<string> ToggleChecklistItem(string cardId, string checklistId, string itemId);
+    Task<string> ToggleChecklistItem(string cardId, string checklistId, string itemId, bool isCompleted);
 }

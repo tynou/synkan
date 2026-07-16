@@ -51,19 +51,19 @@ public class ChecklistService(
         return item.Id;
     }
 
-    public async Task ToggleItem(Guid cardId, Guid checklistId, Guid itemId)
+    public async Task ToggleItem(Guid cardId, Guid checklistId, Guid itemId, bool isCompleted)
     {
         var card = await cardRepository.GetById(cardId);
         if (card is null)
             throw new NotFoundException("Card not found");
         
-        card.ToggleChecklistItem(checklistId, itemId);
+        card.ToggleChecklistItem(checklistId, itemId, isCompleted);
         
         await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
             .Group(card.BoardId.ToString())
-            .OnChecklistItemToggled(new ChecklistItemToggledEvent(cardId, checklistId, itemId));
+            .OnChecklistItemToggled(new ChecklistItemToggledEvent(cardId, checklistId, itemId, isCompleted));
     }
 
     public async Task Delete(Guid cardId, Guid checklistId)

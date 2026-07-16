@@ -6,7 +6,7 @@ public interface IChecklistService
     
     Task<Guid> CreateItem(Guid cardId, Guid checklistId, string text);
 
-    Task ToggleItem(Guid cardId, Guid checklistId, Guid itemId);
+    Task ToggleItem(Guid cardId, Guid checklistId, Guid itemId, bool isCompleted);
     
     Task Delete(Guid cardId, Guid checklistId);
     

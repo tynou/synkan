@@ -177,10 +177,11 @@ public class AiToolsService(
     public async Task<string> ToggleChecklistItem(
         [Description("The Id of the card")] string cardId,
         [Description("The Id of the checklist")] string checklistId,
-        [Description("The Id of the checklist item")] string itemId
+        [Description("The Id of the checklist item")] string itemId,
+        [Description("The new state of the checklist item")] bool isCompleted
     )
     {
-        await checklistService.ToggleItem(Guid.Parse(cardId), Guid.Parse(checklistId), Guid.Parse(itemId));
+        await checklistService.ToggleItem(Guid.Parse(cardId), Guid.Parse(checklistId), Guid.Parse(itemId), isCompleted);
         return "Checklist item toggled";
     }
 }

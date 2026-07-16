@@ -101,10 +101,10 @@ public class Card
         checklist?.RemoveItem(itemId);
     }
 
-    public void ToggleChecklistItem(Guid checklistId, Guid itemId)
+    public void ToggleChecklistItem(Guid checklistId, Guid itemId, bool isCompleted)
     {
         var checklist = _checklists.FirstOrDefault(cl => cl.Id == checklistId);
-        checklist?.ToggleItem(itemId);
+        checklist?.ToggleItem(itemId, isCompleted);
     }
 
     public void AssignLabel(Label label)

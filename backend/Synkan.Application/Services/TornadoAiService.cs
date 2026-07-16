@@ -62,27 +62,35 @@ public class TornadoAiService(
 
         var aiMessageId = Guid.NewGuid();
         var finalResponse = new StringBuilder();
-        for (var i = 0; i < maxTurns; i++)
-        {
-            var (response, callsCount) = await conversation.StreamResponseAsync(async tokens =>
-                {
-                    await chatMessageService.SendMessageChunkAsync(boardId, aiMessageId, tokens);
-                },
-                toolsService.HandleToolCalls,
-                ct
-            );
 
-            finalResponse.Append(response);
-            
-            if (callsCount == 0)
-                break;
+        try
+        {
+            for (var i = 0; i < maxTurns; i++)
+            {
+                var (response, callsCount) = await conversation.StreamResponseAsync(
+                    async tokens => { await chatMessageService.SendMessageChunkAsync(boardId, aiMessageId, tokens); },
+                    toolsService.HandleToolCalls,
+                    ct
+                );
+
+                finalResponse.Append(response);
+
+                if (callsCount == 0)
+                    break;
+            }
         }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        finally
+        {
+            var finalResponseText = finalResponse.ToString();
+            await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, boardId, ChatMessageRole.Ai, finalResponseText));
+            await unitOfWork.SaveChangesAsync();
         
-        var finalResponseText = finalResponse.ToString();
-        await chatMessageRepository.AddAsync(new ChatMessage(aiMessageId, boardId, ChatMessageRole.Ai, finalResponseText));
-        await unitOfWork.SaveChangesAsync();
-        
-        await chatMessageService.SendMessageCompletedAsync(boardId, aiMessageId);
+            await chatMessageService.SendMessageCompletedAsync(boardId, aiMessageId);
+        }
     }
 }
 

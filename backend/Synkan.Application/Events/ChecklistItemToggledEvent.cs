@@ -1,3 +1,3 @@
 ﻿namespace Synkan.Application.Events;
 
-public record ChecklistItemToggledEvent(Guid CardId, Guid ChecklistId, Guid ItemId);
+public record ChecklistItemToggledEvent(Guid CardId, Guid ChecklistId, Guid ItemId, bool IsCompleted);

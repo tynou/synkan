@@ -32,9 +32,9 @@ public class Checklist
         _items.Remove(item);
     }
 
-    public void ToggleItem(Guid itemId)
+    public void ToggleItem(Guid itemId, bool isCompleted)
     {
         var item = _items.FirstOrDefault(i => i.Id == itemId);
-        item?.Toggle();
+        item?.Toggle(isCompleted);
     }
 }
