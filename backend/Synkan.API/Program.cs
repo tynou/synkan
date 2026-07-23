@@ -110,6 +110,8 @@ public static class Program
 
     private static void AddOpenTelemetryMetrics(this IServiceCollection services)
     {
+        services.AddSingleton(TracerProvider.Default.GetTracer("synkan-backend"));
+        
         services.AddOpenTelemetry()
             .ConfigureResource(resource => resource.AddService("synkan-backend"))
             .WithMetrics(metrics => metrics
@@ -119,8 +121,12 @@ public static class Program
                 .AddProcessInstrumentation()
                 .AddPrometheusExporter())
             .WithTracing(tracing => tracing
+                .AddSource("synkan-backend")
+                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("synkan-backend"))
                 .AddAspNetCoreInstrumentation(options =>
-                    options.Filter = context => !context.Request.Path.StartsWithSegments("/metrics"))
+                {
+                    options.Filter = context => !context.Request.Path.StartsWithSegments("/metrics");
+                })
                 .AddHttpClientInstrumentation()
                 .AddEntityFrameworkCoreInstrumentation()
                 .AddRedisInstrumentation(options => options.SetVerboseDatabaseStatements = true)

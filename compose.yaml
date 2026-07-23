@@ -66,8 +66,6 @@
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
-#      - --enable-feature=exemplar-storage
-#      - --enable-feature=native-histograms
     networks:
       - synkan
   

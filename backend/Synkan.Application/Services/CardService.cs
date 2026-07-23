@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using Microsoft.AspNetCore.SignalR;
+using OpenTelemetry.Trace;
 using Synkan.Application.Dto.Response;
 using Synkan.Application.Events;
 using Synkan.Application.Hubs;
@@ -18,6 +19,7 @@ public class CardService(
     IBoardMemberRepository boardMemberRepository,
     ILabelRepository labelRepository,
     IUnitOfWork unitOfWork,
+    Tracer tracer,
     ICurrentUserService currentUser,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : ICardService
@@ -26,15 +28,26 @@ public class CardService(
     
     public async Task<Guid> Create(Guid columnId, string title)
     {
+        using var span = tracer.StartActiveSpan("CreateCard");
+        span.AddEvent("Creating a card");
+        
         var column = await GetColumnAndVerifyAccess(columnId, UserId, AccessLevel.Member);
         
         var card = column.AddCard(title);
-        
-        await unitOfWork.SaveChangesAsync();
 
-        await hubContext.Clients
-            .Group(card.BoardId.ToString())
-            .OnCardCreated(card.ToDto());
+        using (var span1 = tracer.StartActiveSpan("SaveChanges"))
+        {
+            span1.AddEvent("Saving the created card");
+            await unitOfWork.SaveChangesAsync();
+        }
+        
+        using (var span2 = tracer.StartActiveSpan("ReplicateCard"))
+        {
+            span2.AddEvent("Replicating the card");
+            await hubContext.Clients
+                .Group(card.BoardId.ToString())
+                .OnCardCreated(card.ToDto());
+        }
 
         return card.Id;
     }
