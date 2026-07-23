@@ -61,8 +61,13 @@
     ports:
       - "9090:9090"
     volumes:
-      - ./deployment/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./deployment/prometheus.yaml:/etc/prometheus.yaml
       - prometheus_data:/prometheus
+    command:
+      - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+#      - --enable-feature=exemplar-storage
+#      - --enable-feature=native-histograms
     networks:
       - synkan
   
@@ -78,6 +83,21 @@
     networks:
       - synkan
   
+  tempo:
+    image: grafana/tempo:3.0.2
+    container_name: synkan-tempo
+    restart: unless-stopped
+    ports:
+      - "3200:3200" # Tempo UI / API
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+    volumes:
+      - ./deployment/tempo.yaml:/etc/tempo.yaml
+      - tempo-data:/var/tempo
+    command: -config.file=/etc/tempo.yaml
+    networks:
+      - synkan
+  
   alloy:
     image: grafana/alloy:v1.17.1
     container_name: synkan-alloy
@@ -87,14 +107,18 @@
       - /var/run/docker.sock:/var/run/docker.sock
     command:
       - run
-      - --server.http.listen-addr=0.0.0.0:12345
       - /etc/alloy/config.alloy
+      - --server.http.listen-addr=0.0.0.0:12345
     ports:
       - "12345:12345"
+      - "4319:4317" # OTLP gRPC
+    environment:
+      - ALLOY_OTLP_UPSTREAM=tempo:4317
     networks:
       - synkan
     depends_on:
       - loki
+      - tempo
   
   grafana:
     image: grafana/grafana:13.1.0
@@ -105,8 +129,9 @@
     volumes:
       - grafana_data:/var/lib/grafana
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
-      GF_USERS_ALLOW_SIGN_UP: "false"
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
     networks:
       - synkan
 
@@ -116,6 +141,7 @@ volumes:
   redis_insight_data:
   prometheus_data:
   loki_data:
+  tempo-data:
   grafana_data:
 
 networks:
