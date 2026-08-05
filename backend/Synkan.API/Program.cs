@@ -37,13 +37,11 @@ public static class Program
 
         var app = builder.Build();
         
-        // TODO: switch to migrations
-        // using (var scope = app.Services.CreateScope())
-        // {
-        //     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        //     await dbContext.Database.EnsureDeletedAsync();
-        //     await dbContext.Database.EnsureCreatedAsync();
-        // }
+        using (var scope = app.Services.CreateScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            await dbContext.Database.MigrateAsync();
+        }
 
         app.ConfigureApp();
 
