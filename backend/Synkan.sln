@@ -8,6 +8,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.Application", "Synka
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.API", "Synkan.API\Synkan.API.csproj", "{3DF1E7A4-6D3F-4055-A939-DA24B1933F10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.Tests", "Synkan.Tests\Synkan.Tests.csproj", "{5070EC9F-4F8C-4A82-9AED-816AD3A39151}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.IntegrationTests", "Synkan.IntegrationTests\Synkan.IntegrationTests.csproj", "{93792A27-7C90-4485-A0B7-41BB2579B7EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,13 @@ Global
 		{3DF1E7A4-6D3F-4055-A939-DA24B1933F10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3DF1E7A4-6D3F-4055-A939-DA24B1933F10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3DF1E7A4-6D3F-4055-A939-DA24B1933F10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5070EC9F-4F8C-4A82-9AED-816AD3A39151}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5070EC9F-4F8C-4A82-9AED-816AD3A39151}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5070EC9F-4F8C-4A82-9AED-816AD3A39151}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5070EC9F-4F8C-4A82-9AED-816AD3A39151}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93792A27-7C90-4485-A0B7-41BB2579B7EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93792A27-7C90-4485-A0B7-41BB2579B7EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93792A27-7C90-4485-A0B7-41BB2579B7EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93792A27-7C90-4485-A0B7-41BB2579B7EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
