@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
+        <AssemblyName>Synkan.UnitTests</AssemblyName>
+        <RootNamespace>Synkan.UnitTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,6 +22,10 @@
 
     <ItemGroup>
         <Using Include="NUnit.Framework"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Synkan.Domain\Synkan.Domain.csproj" />
     </ItemGroup>
 
 </Project>

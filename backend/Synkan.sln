@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.Application", "Synka
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.API", "Synkan.API\Synkan.API.csproj", "{3DF1E7A4-6D3F-4055-A939-DA24B1933F10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.Tests", "Synkan.Tests\Synkan.Tests.csproj", "{5070EC9F-4F8C-4A82-9AED-816AD3A39151}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.UnitTests", "Synkan.UnitTests\Synkan.UnitTests.csproj", "{5070EC9F-4F8C-4A82-9AED-816AD3A39151}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synkan.IntegrationTests", "Synkan.IntegrationTests\Synkan.IntegrationTests.csproj", "{93792A27-7C90-4485-A0B7-41BB2579B7EF}"
 EndProject
