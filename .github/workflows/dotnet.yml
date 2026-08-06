@@ -1,0 +1,28 @@
+name: Run tests
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.x
+
+    - name: Restore dependencies
+      run: dotnet restore ./backend/Synkan.sln
+
+    - name: Build
+      run: dotnet build ./backend/Synkan.sln --no-restore
+
+    - name: Test
+      run: dotnet test ./backend/Synkan.sln --no-build --verbosity normal
