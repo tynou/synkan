@@ -16,7 +16,7 @@ public class Column
     
     public Column(Guid boardId, string title, int position)
     {
-        // Id = Guid.NewGuid();
+        Id = Guid.NewGuid();
         BoardId = boardId;
         Title = title;
         Position = position;

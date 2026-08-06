@@ -22,7 +22,7 @@ public class Board
     
     public Board(Guid ownerId, bool isPublic, string title)
     {
-        // Id = Guid.NewGuid();
+        Id = Guid.NewGuid();
         OwnerId = ownerId;
         IsPublic = isPublic;
         Title = title;

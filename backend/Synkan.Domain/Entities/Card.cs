@@ -27,7 +27,7 @@ public class Card
     
     public Card(Guid columnId, Guid boardId, string title, int position)
     {
-        // Id = Guid.NewGuid();
+        Id = Guid.NewGuid();
         ColumnId = columnId;
         BoardId = boardId;
         Title = title;

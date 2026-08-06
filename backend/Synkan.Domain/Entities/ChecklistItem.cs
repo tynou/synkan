@@ -12,6 +12,7 @@ public class ChecklistItem
 
     public ChecklistItem(Guid checklistId, string text, int position)
     {
+        Id = Guid.NewGuid();
         ChecklistId = checklistId;
         Text = text;
         Position = position;

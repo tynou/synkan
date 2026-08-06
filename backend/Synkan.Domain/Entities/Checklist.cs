@@ -13,6 +13,7 @@ public class Checklist
 
     public Checklist(Guid cardId, string title)
     {
+        Id = Guid.NewGuid();
         CardId = cardId;
         Title = title;
     }

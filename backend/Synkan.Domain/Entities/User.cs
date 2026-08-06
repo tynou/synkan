@@ -10,7 +10,7 @@ public class User
     
     public User(string username, string passwordHash)
     {
-        // Id = Guid.NewGuid();
+        Id = Guid.NewGuid();
         Username = username;
         PasswordHash = passwordHash;
     }

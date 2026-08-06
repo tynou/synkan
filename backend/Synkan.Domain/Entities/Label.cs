@@ -11,6 +11,7 @@ public class Label
 
     public Label(Guid boardId, string name, string color)
     {
+        Id = Guid.NewGuid();
         BoardId = boardId;
         Name = name;
         Color = color;
