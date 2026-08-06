@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Synkan.Application\Synkan.Application.csproj" />
       <ProjectReference Include="..\Synkan.Domain\Synkan.Domain.csproj" />
     </ItemGroup>
 
