@@ -69,7 +69,7 @@ public class CardServiceTests
         
         _boardMemberRepository.GetAsync(boardId, userId).ReturnsNull();
         
-        var action = () => _sut.Create(columnId, "new card");
+        var action = () => _sut.Create(columnId, "card");
         
         await action.Should().ThrowAsync<UnauthorizedException>();
         
