@@ -1,2 +1,1 @@
-﻿*.ts -linguist-detectable
-*.tsx -linguist-detectable
+﻿frontend/** -linguist-detectable
