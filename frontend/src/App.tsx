@@ -11,7 +11,6 @@ import { Toast, ToastContainer } from './components/NeobrutalistComponents';
 import { api, getAuthToken, logout } from './api';
 import { UserDto } from './types';
 
-
 export default function App() {
   const getBoardIdFromUrl = (): string | null => {
     const match = window.location.pathname.match(/^\/([0-9a-fA-F-]{36})$/);
