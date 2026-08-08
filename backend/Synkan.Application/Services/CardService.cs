@@ -112,9 +112,7 @@ public class CardService(
 
     public async Task AssignLabel(Guid cardId, Guid labelId)
     {
-        var card = await cardRepository.GetById(cardId);
-        if (card is null)
-            throw new NotFoundException("Card not found");
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
         
         var label = await labelRepository.GetById(labelId);
         if (label is null)
@@ -131,9 +129,7 @@ public class CardService(
 
     public async Task RemoveLabel(Guid cardId, Guid labelId)
     {
-        var card = await cardRepository.GetById(cardId);
-        if (card is null)
-            throw new NotFoundException("Card not found");
+        var card = await GetCardAndVerifyAccess(cardId, UserId, AccessLevel.Member);
         
         card.RemoveLabel(labelId);
 
