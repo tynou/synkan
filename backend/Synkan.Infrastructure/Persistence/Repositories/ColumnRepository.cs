@@ -6,6 +6,11 @@ namespace Synkan.Infrastructure.Persistence.Repositories;
 
 public class ColumnRepository(AppDbContext context) : IColumnRepository
 {
+    public async Task Add(Column column)
+    {
+        context.Columns.Add(column);
+    }
+
     public async Task<Column?> GetById(Guid columnId)
     {
         return await context.Columns

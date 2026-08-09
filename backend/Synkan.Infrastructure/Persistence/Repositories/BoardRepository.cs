@@ -8,12 +8,17 @@ public class BoardRepository(AppDbContext context) : IBoardRepository
 {
     public async Task Create(Board board)
     {
-        await context.Boards.AddAsync(board);
+        context.Boards.Add(board);
     }
 
     public async Task Delete(Guid boardId)
     {
-        context.Boards.Remove(context.Boards.First(b => b.Id == boardId));
+        var board = context.Boards.FirstOrDefault(b => b.Id == boardId);
+        if (board is null)
+        {
+            return;
+        }
+        context.Boards.Remove(board);
     }
 
     public async Task<Board?> GetById(Guid boardId)

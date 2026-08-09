@@ -187,6 +187,8 @@ public static class Program
         services.AddScoped<IBoardRepository, BoardRepository>();
         services.AddScoped<IColumnRepository, ColumnRepository>();
         services.AddScoped<ICardRepository, CardRepository>();
+        services.AddScoped<IChecklistRepository, ChecklistRepository>();
+        services.AddScoped<IChecklistItemRepository, ChecklistItemRepository>();
         services.AddScoped<ILabelRepository, LabelRepository>();
         services.AddScoped<IBoardMemberRepository, BoardMemberRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();

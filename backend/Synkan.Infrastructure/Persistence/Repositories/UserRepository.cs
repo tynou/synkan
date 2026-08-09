@@ -6,9 +6,9 @@ namespace Synkan.Infrastructure.Persistence.Repositories;
 
 public class UserRepository(AppDbContext context) : IUserRepository
 {
-    public async Task AddAsync(User user)
+    public async Task Add(User user)
     {
-        await context.Users.AddAsync(user);
+        context.Users.Add(user);
     }
 
     public async Task<User?> GetByUsernameAsync(string username)

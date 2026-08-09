@@ -28,6 +28,7 @@ public class ColumnService(
 
         var column = board.AddColumn(title);
 
+        await columnRepository.Add(column);
         await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients

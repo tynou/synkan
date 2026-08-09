@@ -11,6 +11,8 @@ namespace Synkan.Application.Services;
 public class ChecklistService(
     ICurrentUserService currentUser,
     ICardRepository cardRepository,
+    IChecklistRepository checklistRepository,
+    IChecklistItemRepository checklistItemRepository,
     IUnitOfWork unitOfWork,
     IHubContext<BoardHub, IBoardClient> hubContext
     ) : IChecklistService
@@ -25,6 +27,7 @@ public class ChecklistService(
         
         var checklist = card.AddChecklist(title);
         
+        await checklistRepository.Add(checklist);
         await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients
@@ -42,6 +45,7 @@ public class ChecklistService(
         
         var item = card.AddChecklistItem(checklistId, text);
         
+        await checklistItemRepository.Add(item);
         await unitOfWork.SaveChangesAsync();
         
         await hubContext.Clients

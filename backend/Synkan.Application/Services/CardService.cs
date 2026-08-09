@@ -38,6 +38,7 @@ public class CardService(
         using (var span1 = tracer.StartActiveSpan("SaveChanges"))
         {
             span1.AddEvent("Saving the created card");
+            await cardRepository.Add(card);
             await unitOfWork.SaveChangesAsync();
         }
         

@@ -4,7 +4,7 @@ namespace Synkan.Domain.Repositories;
 
 public interface IUserRepository
 {
-    Task AddAsync(User user);
+    Task Add(User user);
     
     Task<User?> GetByUsernameAsync(string username);
     

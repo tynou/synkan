@@ -6,6 +6,11 @@ namespace Synkan.Infrastructure.Persistence.Repositories;
 
 public class LabelRepository(AppDbContext context) : ILabelRepository
 {
+    public async Task Add(Label label)
+    {
+        context.Labels.Add(label);
+    }
+
     public async Task<Label?> GetById(Guid labelId)
     {
         return await context.Labels.FirstOrDefaultAsync(l => l.Id == labelId);

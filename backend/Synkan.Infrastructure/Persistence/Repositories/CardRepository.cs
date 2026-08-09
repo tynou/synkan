@@ -6,6 +6,11 @@ namespace Synkan.Infrastructure.Persistence.Repositories;
 
 public class CardRepository(AppDbContext context) : ICardRepository
 {
+    public async Task Add(Card card)
+    {
+        context.Cards.Add(card);
+    }
+
     public async Task<Card?> GetById(Guid cardId)
     {
         return await context.Cards

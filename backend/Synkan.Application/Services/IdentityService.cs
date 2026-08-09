@@ -23,7 +23,7 @@ public class IdentityService(
         var passwordHash = passwordHasher.Hash(password);
         var user = new User(username, passwordHash);
         
-        await userRepository.AddAsync(user);
+        await userRepository.Add(user);
         await unitOfWork.SaveChangesAsync();
 
         var token = jwtService.GenerateToken(user.Id);
