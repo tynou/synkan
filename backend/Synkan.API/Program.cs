@@ -76,7 +76,6 @@ public static class Program
             });
         });
         
-        services.AddCors();
         services.AddControllers();
         services.AddServices();
         services.AddRepositories();
@@ -133,25 +132,6 @@ public static class Program
                     options.Endpoint = new Uri("http://alloy:4317");
                     options.Protocol = OtlpExportProtocol.Grpc;
                 }));
-    }
-
-    private static void AddCors(this IServiceCollection services)
-    {
-        services.AddCors(options =>
-        {
-            options.AddPolicy("AllowFrontend", policy =>
-            {
-                policy.WithOrigins("http://localhost:3001")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod()
-                    .AllowCredentials();
-                
-                // policy.AllowAnyOrigin()
-                //     .AllowAnyHeader()
-                //     .AllowAnyMethod()
-                //     .AllowCredentials();
-            });
-        });
     }
 
     private static void AddServices(this IServiceCollection services)
@@ -304,8 +284,6 @@ public static class Program
         app.MapPrometheusScrapingEndpoint();
         
         app.UseExceptionHandler();
-        
-        app.UseCors("AllowFrontend");
         
         app.UseHttpsRedirection();
         

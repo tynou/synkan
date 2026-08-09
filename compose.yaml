@@ -9,11 +9,23 @@
       ASPNETCORE_HTTP_PORTS: 8080
       ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=synkan;Username=postgres;Password=1234
       ConnectionStrings__Redis: redis:6379
-    ports:
-      - "5234:8080"
+    expose:
+      - "8080"
     depends_on:
       - postgres
       - redis
+    networks:
+      - synkan
+  
+  frontend:
+    container_name: synkan-frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
     networks:
       - synkan
   
@@ -66,6 +78,8 @@
     command:
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
+      - --web.external-url=/prometheus/
+      - --web.route-prefix=/
     networks:
       - synkan
   
@@ -130,6 +144,8 @@
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - synkan
 

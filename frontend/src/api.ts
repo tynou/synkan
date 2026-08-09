@@ -38,8 +38,9 @@ import {
 } from './types';
 
 export function getApiBaseUrl(): string {
-  const envUrl = (import.meta as any).env?.VITE_API_URL;
-  return envUrl ? envUrl.trim() : 'http://localhost:5234';
+  return '';
+  // const envUrl = (import.meta as any).env?.VITE_API_URL;
+  // return envUrl ? envUrl.trim() : '';
 }
 
 export function getAuthToken(): string | null {
