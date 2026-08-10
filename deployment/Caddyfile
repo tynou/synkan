@@ -10,8 +10,8 @@
     }
     
     handle /asyncapi* {
-            reverse_proxy backend:8080
-        }
+        reverse_proxy backend:8080
+    }
 
     handle /hubs* {
         reverse_proxy backend:8080
@@ -26,8 +26,6 @@
     }
 
     handle {
-        root * /srv
-        try_files {path} /index.html
-        file_server
+        reverse_proxy frontend:80
     }
 }
