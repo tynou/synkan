@@ -17,7 +17,7 @@
   backend:
     container_name: synkan-backend
     build:
-      context: ./backend/Synkan.API
+      context: ./backend
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: Development
