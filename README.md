@@ -93,14 +93,14 @@ docker compose down
 
 ### Доступные сервисы после запуска:
 
-| Сервис                 | URL                                     | Назначение                                            |
-|------------------------|-----------------------------------------|-------------------------------------------------------|
-| **Frontend**           | http://localhost                        | Фронтенд                                              |
-| **Backend**            | http://localhost                        | REST API & SignalR Hubs                               |
-| **Swagger UI**         | http://localhost/swagger/index.html     | Документация REST API                                 |
-| **AsyncAPI Schema**    | http://localhost/asyncapi/ui/index.html | Документация AsyncAPI                                 |
-| **Hangfire Dashboard** | http://localhost/hangfire               | Управление фоновыми задачами                          |
-| **Prometheus**         | http://localhost/prometheus             | Системные метрики                                     |
-| **Grafana**            | http://localhost/grafana                | Просмотр дашбордов, логов и трассировок (admin/admin) |
-| **Grafana Alloy UI**   | http://localhost/alloy                  | Граф потоков телеметрии                               |
-| **Redis Insight UI**   | http://localhost/redis                  | Интерфейс Redis                                       |
+| Сервис                 | URL                                     | Назначение                                |
+|------------------------|-----------------------------------------|-------------------------------------------|
+| **Frontend**           | http://localhost                        | Фронтенд                                  |
+| **Backend**            | http://localhost                        | REST API & SignalR Hubs                   |
+| **Swagger UI**         | http://localhost/swagger/index.html     | Документация REST API                     |
+| **AsyncAPI Schema**    | http://localhost/asyncapi/ui/index.html | Документация AsyncAPI                     |
+| **Hangfire Dashboard** | http://localhost/hangfire               | Управление фоновыми задачами              |
+| **Prometheus**         | http://localhost/prometheus             | Системные метрики                         |
+| **Grafana**            | http://localhost/grafana                | Просмотр дашбордов, логов и трассировок   |
+| **Grafana Alloy UI**   | http://localhost/alloy                  | Граф потоков телеметрии                   |
+| **Redis Insight UI**   | http://localhost/redis                  | Интерфейс Redis                           |
