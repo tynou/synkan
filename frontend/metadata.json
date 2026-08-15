@@ -1,6 +1,0 @@
-{
-  "name": "Synkan Kanban Board",
-  "description": "A Neobrutalist Kanban board application (Trello analog) built with React and Tailwind CSS, interfacing with the Synkan.API.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
