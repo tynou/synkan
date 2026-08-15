@@ -39,6 +39,7 @@
     restart: unless-stopped
     expose:
       - "80"
+      - "443"
     networks:
       - synkan
   
@@ -52,8 +53,8 @@
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     volumes:
       - postgres_data:/var/lib/postgresql
-    ports:
-      - "5433:5432"
+    expose:
+      - "5432"
     networks:
       - synkan
   
@@ -63,8 +64,8 @@
     restart: unless-stopped
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     networks:
       - synkan
   
@@ -74,8 +75,10 @@
     restart: unless-stopped
     volumes:
       - redis_insight_data:/data
-    ports:
-      - "5540:5540"
+    expose:
+      - "5540"
+    environment:
+      - RI_PROXY_PATH=/redis
     networks:
       - synkan
   
@@ -83,8 +86,8 @@
     image: prom/prometheus:v3
     container_name: synkan-prometheus
     restart: unless-stopped
-    ports:
-      - "9090:9090"
+    expose:
+      - "9090"
     volumes:
       - ./deployment/prometheus.yaml:/etc/prometheus.yaml
       - prometheus_data:/prometheus
@@ -92,7 +95,7 @@
       - --config.file=/etc/prometheus.yaml
       - --web.enable-remote-write-receiver
       - --web.external-url=/prometheus/
-      - --web.route-prefix=/
+      - --web.route-prefix=/prometheus/
     networks:
       - synkan
   
@@ -100,8 +103,8 @@
     image: grafana/loki:3.7.3
     container_name: synkan-loki
     restart: unless-stopped
-    ports:
-      - "3100:3100"
+    expose:
+      - "3100"
     volumes:
       - loki_data:/loki
     command: -config.file=/etc/loki/local-config.yaml
@@ -112,10 +115,10 @@
     image: grafana/tempo:3.0.2
     container_name: synkan-tempo
     restart: unless-stopped
-    ports:
-      - "3200:3200" # Tempo UI / API
-      - "4317:4317" # OTLP gRPC receiver
-      - "4318:4318" # OTLP HTTP receiver
+    expose:
+      - "3200"
+      - "4317" # OTLP gRPC receiver
+      - "4318" # OTLP HTTP receiver
     volumes:
       - ./deployment/tempo.yaml:/etc/tempo.yaml
       - tempo-data:/var/tempo
@@ -134,9 +137,10 @@
       - run
       - /etc/alloy/config.alloy
       - --server.http.listen-addr=0.0.0.0:12345
-    ports:
-      - "12345:12345"
-      - "4319:4317" # OTLP gRPC
+      - --server.http.ui-path-prefix=/alloy
+    expose:
+      - "12345"
+      - "4317" # OTLP gRPC
     environment:
       - ALLOY_OTLP_UPSTREAM=tempo:4317
     networks:
@@ -149,8 +153,8 @@
     image: grafana/grafana:13.1.0
     container_name: synkan-grafana
     restart: unless-stopped
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     volumes:
       - grafana_data:/var/lib/grafana
     environment:

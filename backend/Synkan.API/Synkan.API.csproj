@@ -42,10 +42,4 @@
       <ProjectReference Include="..\Synkan.Infrastructure\Synkan.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
-    </ItemGroup>
-
 </Project>
