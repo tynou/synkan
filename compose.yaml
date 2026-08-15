@@ -22,7 +22,7 @@
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_HTTP_PORTS: 8080
-      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=synkan;Username=postgres;Password=1234
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=${POSTGRES_DB:-synkan};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-1234}
       ConnectionStrings__Redis: redis:6379
     expose:
       - "8080"
@@ -48,9 +48,9 @@
     container_name: synkan-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB must be set}
-      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER must be set}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-synkan}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-1234}
     volumes:
       - postgres_data:/var/lib/postgresql
     expose:
@@ -161,7 +161,7 @@
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
+      - GF_SERVER_ROOT_URL=http://localhost/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
     networks:
       - synkan
